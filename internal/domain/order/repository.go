@@ -1,91 +1,45 @@
 package order
 
 import (
-	"errors"
-
-	"gorm.io/gorm"
+    "gorm.io/gorm"
+    "errors"
 )
 
-type Repository interface {
-	Create(order *Order) error
-	FindByID(id uint) (*Order, error)
-	ListByUser(userID uint, page, limit int) ([]Order, int, error)
-	UpdateStatus(id uint, status OrderStatus) error
-	FindByUserAndID(userID, orderID uint) (*Order, error)
+type Repository struct {
+    db *gorm.DB
 }
 
-type repository struct {
-	db *gorm.DB
+func NewRepository(db *gorm.DB) *Repository {
+    return &Repository{db: db}
 }
 
-func NewRepository(db *gorm.DB) Repository {
-	return &repository{db: db}
+func (r *Repository) Create(order *Order) error {
+    return r.db.Create(order).Error
 }
 
-func (r *repository) Create(order *Order) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Create order
-		if err := tx.Create(order).Error; err != nil {
-			return err
-		}
-
-		// Create order items
-		for _, item := range order.Items {
-			item.OrderID = order.ID
-			if err := tx.Create(&item).Error; err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
+func (r *Repository) GetByID(id uint) (*Order, error) {
+    var order Order
+    if err := r.db.Preload("Items.Product").First(&order, id).Error; err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            return nil, errors.New("order not found")
+        }
+        return nil, err
+    }
+    return &order, nil
 }
 
-func (r *repository) FindByID(id uint) (*Order, error) {
-	var order Order
-	err := r.db.Preload("Items").First(&order, id).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &order, nil
+func (r *Repository) ListByUser(userID uint, page, limit int) ([]Order, int64, error) {
+    var orders []Order
+    var total int64
+
+    query := r.db.Model(&Order{}).Where("user_id = ?", userID)
+    query.Count(&total)
+
+    offset := (page - 1) * limit
+    err := query.Preload("Items.Product").Offset(offset).Limit(limit).Find(&orders).Error
+    return orders, total, err
 }
 
-func (r *repository) ListByUser(userID uint, page, limit int) ([]Order, int, error) {
-	var orders []Order
-	var total int64
-
-	query := r.db.Model(&Order{}).Where("user_id = ?", userID)
-
-	// Count total records
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	// Get paginated records
-	err := query.Offset((page - 1) * limit).
-		Limit(limit).
-		Preload("Items").
-		Order("created_at DESC").
-		Find(&orders).Error
-
-	return orders, int(total), err
-}
-
-func (r *repository) UpdateStatus(id uint, status OrderStatus) error {
-	return r.db.Model(&Order{}).Where("id = ?", id).Update("status", status).Error
-}
-
-func (r *repository) FindByUserAndID(userID, orderID uint) (*Order, error) {
-	var order Order
-	err := r.db.Preload("Items").Where("user_id = ? AND id = ?", userID, orderID).First(&order).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &order, nil
+func (r *Repository) UpdateStatus(orderID uint, status OrderStatus) error {
+    return r.db.Model(&Order{}).Where("id = ?", orderID).Update("status", status).Error
 }

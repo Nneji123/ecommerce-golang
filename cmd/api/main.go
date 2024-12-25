@@ -24,6 +24,8 @@ import (
 
 	_ "github.com/nneji123/ecommerce-golang/docs"
 	"github.com/nneji123/ecommerce-golang/internal/common/email"
+	"github.com/nneji123/ecommerce-golang/internal/domain/order"
+	"github.com/nneji123/ecommerce-golang/internal/domain/product"
 	"github.com/nneji123/ecommerce-golang/internal/domain/user"
 
 	"github.com/nneji123/ecommerce-golang/internal/config"
@@ -100,7 +102,7 @@ func main() {
 
 	user.RegisterRoutes(e, userHandler)
 
-	if err := database.AutoMigrate(&user.User{}); err != nil {
+	if err := database.AutoMigrate(&user.User{}, &product.Product{}, &order.Order{}, &order.OrderItem{}); err != nil {
 		logger.Fatal("Failed to auto-migrate user model", zap.Error(err))
 	}
 

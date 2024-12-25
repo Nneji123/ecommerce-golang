@@ -52,32 +52,19 @@ func AuthMiddleware(secretKey string) echo.MiddlewareFunc {
 	}
 }
 
-// Helper function to retrieve user claims from the context.
-func GetUserFromContext(c echo.Context) *models.Claims {
-	user, ok := c.Get("user").(*models.Claims)
-	if !ok {
-		return nil
-	}
-	return user
-}
+func AdminMiddleware() echo.MiddlewareFunc {
+    return func(next echo.HandlerFunc) echo.HandlerFunc {
+        return func(c echo.Context) error {
+            claims, ok := c.Get("userClaims").(*models.Claims)
+            if !ok {
+                return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
+            }
 
-// AdminOnly is a middleware that restricts access to admin users.
-func AdminOnly() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			// Retrieve the user claims from the context
-			userClaims, ok := c.Get("user").(*models.Claims)
-			if !ok || userClaims.Role != "admin" {
-				return echo.NewHTTPError(http.StatusForbidden, "admin access required")
-			}
+            if claims.Role != "admin" {
+                return echo.NewHTTPError(http.StatusForbidden, "admin access required")
+            }
 
-			return next(c)
-		}
-	}
-}
-
-// GetUserClaims retrieves the user claims from the Echo context.
-func GetUserClaims(c echo.Context) (*models.Claims, bool) {
-	claims, ok := c.Get("user").(*models.Claims)
-	return claims, ok
+            return next(c)
+        }
+    }
 }

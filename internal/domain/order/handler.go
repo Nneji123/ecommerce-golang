@@ -1,93 +1,152 @@
 package order
 
-// import (
-// 	"net/http"
-// 	"strconv"
+import (
+	"net/http"
+	"strconv"
 
-// 	"github.com/labstack/echo/v4"
-// 	"github.com/nneji123/ecommerce-golang/internal/middleware"
-// 	"github.com/nneji123/ecommerce-golang/internal/domain/product"
-// )
+	"github.com/labstack/echo/v4"
+	"github.com/nneji123/ecommerce-golang/internal/common/models"
+	"go.uber.org/zap"
+)
 
-// type Handler struct {
-// 	repo          Repository
-// 	productRepo   product.Repository
-// 	emailService  email.Service
-// 	validator     *validator.Validate
-// 	logger        *zap.Logger
-// }
+type Handler struct {
+    repo    *Repository
+    logger  *zap.Logger
+}
 
-// func NewHandler(
-// 	repo Repository,
-// 	productRepo product.Repository,
-// 	emailService email.Service,
-// 	validator *validator.Validate,
-// 	logger *zap.Logger,
-// ) *Handler {
-// 	return &Handler{
-// 		repo:          repo,
-// 		productRepo:   productRepo,
-// 		emailService:  emailService,
-// 		validator:     validator,
-// 		logger:        logger,
-// 	}
-// }
+func NewHandler(repo *Repository, logger *zap.Logger) *Handler {
+    return &Handler{
+        repo:    repo,
+        logger:  logger,
+    }
+}
 
-// // @Summary Create order
-// // @Description Place a new order
-// // @Tags orders
-// // @Accept json
-// // @Produce json
-// // @Security BearerAuth
-// // @Param request body CreateOrderRequest true "Order details"
-// // @Success 201 {object} Order
-// // @Failure 400 {object} middleware.ErrorResponse
-// // @Failure 401 {object} middleware.ErrorResponse
-// // @Failure 422 {object} middleware.ErrorResponse
-// // @Router /orders [post]
-// func (h *Handler) CreateOrder(c echo.Context) error {
-// 	var req CreateOrderRequest
-// 	if err := c.Bind(&req); err != nil {
-// 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-// 	}
+//	@Summary		Create order
+//	@Description	Place a new order
+//	@Tags			orders
+//	@Accept			json
+//	@Produce		json
+//	@Param			order	body		Order	true	"Order object"
+//	@Success		201		{object}	Order
+//	@Failure		400		{object}	ErrorResponse
+//	@Router			/orders [post]
+func (h *Handler) Create(c echo.Context) error {
+    var order Order
+    if err := c.Bind(&order); err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
 
-// 	if err := h.validator.Struct(req); err != nil {
-// 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-// 	}
+    // Get user ID from claims
+    claims := c.Get("userClaims").(*models.Claims)
+    order.UserID = claims.UserID
 
-// 	// Get user ID from JWT claims
-// 	claims := c.Get("user").(*middleware.Claims)
-// 	userID := claims.UserID
+    if err := h.repo.Create(&order); err != nil {
+        h.logger.Error("Failed to create order", zap.Error(err))
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create order")
+    }
 
-// 	// Start transaction
-// 	return h.repo.db.Transaction(func(tx *gorm.DB) error {
-// 		// Get all products and validate stock
-// 		var productIDs []uint
-// 		for _, item := range req.Items {
-// 			productIDs = append(productIDs, item.ProductID)
-// 		}
+    return c.JSON(http.StatusCreated, order)
+}
 
-// 		products, err := h.productRepo.FindByIDs(productIDs)
-// 		if err != nil {
-// 			h.logger.Error("Failed to fetch products", zap.Error(err))
-// 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process order")
-// 		}
+//	@Summary		List user orders
+//	@Description	List all orders for the authenticated user
+//	@Tags			orders
+//	@Produce		json
+//	@Success		200	{array}	Order
+//	@Router			/orders [get]
+func (h *Handler) ListUserOrders(c echo.Context) error {
+    claims := c.Get("userClaims").(*models.Claims)
+    page, _ := strconv.Atoi(c.QueryParam("page"))
+    if page < 1 {
+        page = 1
+    }
+    limit := 10
 
-// 		// Create map for easy lookup
-// 		productMap := make(map[uint]product.Product)
-// 		for _, p := range products {
-// 			productMap[p.ID] = p
-// 		}
+    orders, total, err := h.repo.ListByUser(claims.UserID, page, limit)
+    if err != nil {
+        h.logger.Error("Failed to list orders", zap.Error(err))
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to list orders")
+    }
 
-// 		// Calculate total and validate stock
-// 		var total float64
-// 		var orderItems []OrderItem
-// 		for _, item := range req.Items {
-// 			prod, exists := productMap[item.ProductID]
-// 			if !exists {
-// 				return echo.NewHTTPError(http.StatusUnprocessableEntity, "Product not found")
-// 			}
+    return c.JSON(http.StatusOK, map[string]interface{}{
+        "orders": orders,
+        "total":  total,
+        "page":   page,
+        "limit":  limit,
+    })
+}
 
-// 			if prod.Stock < item.Quantity {
-// 				return echo.NewHTTPError(http.StatusUnprocessableEntity, "Insufficient stock")
-// 			}
+//	@Summary		Cancel order
+//	@Description	Cancel an order (only if pending)
+//	@Tags			orders
+//	@Param			id	path		int	true	"Order ID"
+//	@Success		200	{object}	Order
+//	@Failure		400	{object}	ErrorResponse
+//	@Router			/orders/{id}/cancel [post]
+func (h *Handler) CancelOrder(c echo.Context) error {
+    id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "Invalid order ID")
+    }
+
+    order, err := h.repo.GetByID(uint(id))
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound, "Order not found")
+    }
+
+    claims := c.Get("userClaims").(*models.Claims)
+    if order.UserID != claims.UserID {
+        return echo.NewHTTPError(http.StatusForbidden, "Not authorized to cancel this order")
+    }
+
+    if order.Status != StatusPending {
+        return echo.NewHTTPError(http.StatusBadRequest, "Only pending orders can be cancelled")
+    }
+
+    if err := h.repo.UpdateStatus(order.ID, StatusCancelled); err != nil {
+        h.logger.Error("Failed to cancel order", zap.Error(err))
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to cancel order")
+    }
+
+    return c.JSON(http.StatusOK, map[string]string{"message": "Order cancelled successfully"})
+}
+
+//	@Summary		Update order status
+//	@Description	Update order status (Admin only)
+//	@Tags			orders
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int		true	"Order ID"
+//	@Param			status	body		string	true	"New status"
+//	@Success		200		{object}	Order
+//	@Failure		400		{object}	ErrorResponse
+//	@Router			/orders/{id}/status [put]
+func (h *Handler) UpdateStatus(c echo.Context) error {
+    id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "Invalid order ID")
+    }
+
+    var statusUpdate struct {
+        Status OrderStatus `json:"status"`
+    }
+
+    if err := c.Bind(&statusUpdate); err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
+
+    // Validate status
+    if !IsValidOrderStatus(statusUpdate.Status) {
+        return echo.NewHTTPError(http.StatusBadRequest, "Invalid order status")
+    }
+
+    if err := h.repo.UpdateStatus(uint(id), statusUpdate.Status); err != nil {
+        h.logger.Error("Failed to update order status", zap.Error(err))
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update order status")
+    }
+
+    return c.JSON(http.StatusOK, map[string]string{
+        "message": "Order status updated successfully",
+        "status":  string(statusUpdate.Status),
+    })
+}
