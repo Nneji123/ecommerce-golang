@@ -1,0 +1,61 @@
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to Our Service</mj-title>
+    <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Roboto" />
+    <mj-attributes>
+      <mj-all font-family="Roboto, Helvetica, sans-serif" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
+      <mj-column width="100%">
+        <mj-image src="https://via.placeholder.com/200x50" alt="Logo" align="center" width="200px" />
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#ffffff" padding-bottom="0px" padding-top="0">
+      <mj-column width="100%">
+        <mj-divider border-color="#4CAF50" border-width="2px" width="100%" />
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
+      <mj-column width="100%">
+        <mj-text font-size="24px" color="#4CAF50" font-weight="bold">Welcome to Our Service!</mj-text>
+        <mj-text font-size="16px" color="#000000">
+          We're thrilled to have you with us. Here are a few things you can do to get started:
+        </mj-text>
+        <mj-text font-size="16px" color="#000000">
+          <ul>
+            <li>Complete your profile</li>
+            <li>Explore our features</li>
+            <li>Connect with other users</li>
+          </ul>
+        </mj-text>
+        <mj-button background-color="#4CAF50" color="white" href="https://yourwebsite.com/dashboard">
+          Go to Dashboard
+        </mj-button>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
+      <mj-column width="33.33%">
+        <mj-image src="https://via.placeholder.com/100x100" alt="Feature 1" width="100px" />
+        <mj-text font-size="14px" color="#000000" align="center">Feature 1</mj-text>
+      </mj-column>
+      <mj-column width="33.33%">
+        <mj-image src="https://via.placeholder.com/100x100" alt="Feature 2" width="100px" />
+        <mj-text font-size="14px" color="#000000" align="center">Feature 2</mj-text>
+      </mj-column>
+      <mj-column width="33.33%">
+        <mj-image src="https://via.placeholder.com/100x100" alt="Feature 3" width="100px" />
+        <mj-text font-size="14px" color="#000000" align="center">Feature 3</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
+      <mj-column width="100%">
+        <mj-divider border-color="#4CAF50" border-width="1px" width="100%" />
+        <mj-text font-size="12px" color="#555555" align="center">
+          © 2023 Your Company Name. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
