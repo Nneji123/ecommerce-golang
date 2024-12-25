@@ -1,10 +1,89 @@
 definitions:
   middleware.ErrorResponse:
     properties:
-      code:
-        type: integer
-      message:
+      error:
         type: string
+    type: object
+  middleware.PaginatedResponse:
+    properties:
+      current_page:
+        type: integer
+      limit:
+        type: integer
+      total_items:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  order.Order:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/order.OrderItem'
+        type: array
+      status:
+        $ref: '#/definitions/order.OrderStatus'
+      total_amount:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  order.OrderItem:
+    properties:
+      id:
+        type: integer
+      order_id:
+        type: integer
+      price:
+        type: number
+      product:
+        $ref: '#/definitions/product.Product'
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  order.OrderStatus:
+    enum:
+    - pending
+    - confirmed
+    - shipped
+    - delivered
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusConfirmed
+    - StatusShipped
+    - StatusDelivered
+    - StatusCancelled
+  product.Product:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        minimum: 0
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - name
+    - price
+    - stock
     type: object
   user.LoginRequest:
     properties:
@@ -237,6 +316,236 @@ paths:
       summary: Register new user
       tags:
       - auth
+  /orders:
+    get:
+      description: List all orders for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/order.Order'
+            type: array
+      summary: List user orders
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      description: Place a new order
+      parameters:
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/order.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Create order
+      tags:
+      - orders
+  /orders/{id}/cancel:
+    post:
+      description: Cancel an order (only if pending)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Cancel order
+      tags:
+      - orders
+  /orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update order status (Admin only)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New status
+        in: body
+        name: status
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Update order status
+      tags:
+      - orders
+  /products:
+    get:
+      description: Get a paginated list of products with optional filters
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Minimum price
+        in: query
+        name: min_price
+        type: number
+      - description: Maximum price
+        in: query
+        name: max_price
+        type: number
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Sort by field (name, price, created_at)
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort direction (asc, desc)
+        in: query
+        name: sort_dir
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/middleware.PaginatedResponse'
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product (Admin only)
+      parameters:
+      - description: Product object
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/product.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/product.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Create product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Delete product by ID (Admin only)
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Delete product
+      tags:
+      - products
+    get:
+      description: Get product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.Product'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Get product
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update product by ID (Admin only)
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product object
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/product.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.Product'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Update product
+      tags:
+      - products
   /user/detail:
     get:
       description: Retrieve the logged-in user's details

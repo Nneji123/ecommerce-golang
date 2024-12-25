@@ -28,7 +28,7 @@ func NewHandler(repo *Repository, logger *zap.Logger) *Handler {
 //	@Produce		json
 //	@Param			order	body		Order	true	"Order object"
 //	@Success		201		{object}	Order
-//	@Failure		400		{object}	ErrorResponse
+//	@Failure		400		{object}	middleware.ErrorResponse
 //	@Router			/orders [post]
 func (h *Handler) Create(c echo.Context) error {
     var order Order
@@ -81,7 +81,7 @@ func (h *Handler) ListUserOrders(c echo.Context) error {
 //	@Tags			orders
 //	@Param			id	path		int	true	"Order ID"
 //	@Success		200	{object}	Order
-//	@Failure		400	{object}	ErrorResponse
+//	@Failure		400	{object}	middleware.ErrorResponse
 //	@Router			/orders/{id}/cancel [post]
 func (h *Handler) CancelOrder(c echo.Context) error {
     id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -119,7 +119,7 @@ func (h *Handler) CancelOrder(c echo.Context) error {
 //	@Param			id		path		int		true	"Order ID"
 //	@Param			status	body		string	true	"New status"
 //	@Success		200		{object}	Order
-//	@Failure		400		{object}	ErrorResponse
+//	@Failure		400		{object}	middleware.ErrorResponse
 //	@Router			/orders/{id}/status [put]
 func (h *Handler) UpdateStatus(c echo.Context) error {
     id, err := strconv.ParseUint(c.Param("id"), 10, 32)

@@ -29,7 +29,7 @@ func NewHandler(repo *Repository, logger *zap.Logger) *Handler {
 //	@Produce		json
 //	@Param			product	body		Product	true	"Product object"
 //	@Success		201		{object}	Product
-//	@Failure		400		{object}	ErrorResponse
+//	@Failure		400		{object}	middleware.ErrorResponse
 //	@Router			/products [post]
 func (h *Handler) Create(c echo.Context) error {
     var product Product
@@ -51,7 +51,7 @@ func (h *Handler) Create(c echo.Context) error {
 //	@Produce		json
 //	@Param			id	path		int	true	"Product ID"
 //	@Success		200	{object}	Product
-//	@Failure		404	{object}	ErrorResponse
+//	@Failure		404	{object}	middleware.ErrorResponse
 //	@Router			/products/{id} [get]
 func (h *Handler) Get(c echo.Context) error {
     id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -75,7 +75,7 @@ func (h *Handler) Get(c echo.Context) error {
 //	@Param			id		path		int		true	"Product ID"
 //	@Param			product	body		Product	true	"Product object"
 //	@Success		200		{object}	Product
-//	@Failure		404		{object}	ErrorResponse
+//	@Failure		404		{object}	middleware.ErrorResponse
 //	@Router			/products/{id} [put]
 func (h *Handler) Update(c echo.Context) error {
     id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -105,7 +105,7 @@ func (h *Handler) Update(c echo.Context) error {
 //	@Tags			products
 //	@Param			id	path	int	true	"Product ID"
 //	@Success		204	"No Content"
-//	@Failure		404	{object}	ErrorResponse
+//	@Failure		404	{object}	middleware.ErrorResponse
 //	@Router			/products/{id} [delete]
 func (h *Handler) Delete(c echo.Context) error {
     id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -132,7 +132,7 @@ func (h *Handler) Delete(c echo.Context) error {
 //	@Param			search		query		string	false	"Search term"
 //	@Param			sort_by		query		string	false	"Sort by field (name, price, created_at)"
 //	@Param			sort_dir	query		string	false	"Sort direction (asc, desc)"
-//	@Success		200			{object}	PaginatedResponse
+//	@Success		200			{object}	middleware.PaginatedResponse
 //	@Router			/products [get]
 func (h *Handler) List(c echo.Context) error {
     var query ListProductsQuery
