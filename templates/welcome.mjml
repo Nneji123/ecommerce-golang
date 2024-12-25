@@ -52,7 +52,7 @@
       <mj-column width="100%">
         <mj-divider border-color="#4CAF50" border-width="1px" width="100%" />
         <mj-text font-size="12px" color="#555555" align="center">
-          © 2023 Your Company Name. All rights reserved.
+          © 2024 GoCommerce. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>

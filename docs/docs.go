@@ -868,7 +868,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{"http"},
 	Title:            "GoCommerce API",
-	Description:      "GoCommerce API is a service for leads generation and outreach.",
+	Description:      "GoCommerce API is a A robust and scalable e-commerce API built with Go, featuring user authentication, product management, order processing, and email notifications. Built using Echo framework and following Domain-Driven Design principles.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

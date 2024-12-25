@@ -164,7 +164,9 @@ info:
     email: contact@GoCommerce.com
     name: GoCommerce Support
     url: http://GoCommerce.com
-  description: GoCommerce API is a service for leads generation and outreach.
+  description: GoCommerce API is a A robust and scalable e-commerce API built with
+    Go, featuring user authentication, product management, order processing, and email
+    notifications. Built using Echo framework and following Domain-Driven Design principles.
   license:
     name: MIT
     url: http://www.apache.org/licenses/LICENSE-2.0.html
