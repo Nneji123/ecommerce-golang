@@ -244,6 +244,32 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/detail": {
+            "get": {
+                "description": "Retrieve the logged-in user's details",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

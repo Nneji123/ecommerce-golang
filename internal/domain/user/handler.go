@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -133,7 +134,7 @@ func (h *Handler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "email not verified")
 	}
 
-	token, err := h.auth.GenerateToken(user.ID)
+	token, err := h.auth.GenerateToken(user.ID, user.Email, user.Role)
 	if err != nil {
 		return err
 	}
@@ -283,3 +284,36 @@ func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 		"message": "password reset successfully",
 	})
 }
+
+// UserDetail godoc
+//
+//	@Summary		Get user details
+//	@Description	Retrieve the logged-in user's details
+//	@Tags			user
+//	@Produce		json
+//	@Success		200	{object}	User
+//	@Failure		401	{object}	middleware.ErrorResponse
+//	@Router			/user/detail [get]
+func (h *Handler) UserDetail(c echo.Context) error {
+	claims, ok := c.Get("user").(*Claims)
+	if !ok {
+		return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
+	}
+
+	userID, err := strconv.ParseUint(claims.ID, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid user ID format")
+	}
+
+	// Retrieve user from the repository
+	user, err := h.repo.FindByID(uint(userID))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve user information")
+	}
+	if user == nil {
+		return echo.NewHTTPError(http.StatusNotFound, "user not found")
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
+

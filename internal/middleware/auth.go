@@ -1,65 +1,56 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"github.com/nneji123/ecommerce-golang/internal/domain/user"
 )
 
-type JWTConfig struct {
-	SecretKey string
-	Duration  time.Duration
-}
-
-type Claims struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
-	jwt.StandardClaims
-}
-
-func AuthMiddleware(config JWTConfig) echo.MiddlewareFunc {
+// AuthMiddleware validates JWT tokens and extracts user claims.
+func AuthMiddleware(authService user.AuthService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Get token from header
+			// Extract the Authorization header
 			authHeader := c.Request().Header.Get("Authorization")
-			if authHeader == "" {
-				return echo.NewHTTPError(http.StatusUnauthorized, "missing authorization header")
+			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+				return echo.NewHTTPError(http.StatusUnauthorized, "missing or invalid Authorization header")
 			}
 
-			// Parse token
-			tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-			claims := &Claims{}
-			token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-				}
-				return []byte(config.SecretKey), nil
-			})
+			// Extract the token
+			token := strings.TrimPrefix(authHeader, "Bearer ")
 
-			if err != nil || !token.Valid {
-				return echo.NewHTTPError(http.StatusUnauthorized, "invalid or expired token")
+			// Validate the token
+			claims, err := authService.ValidateToken(token)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusUnauthorized, "invalid token")
 			}
 
-			// Set claims in context
+			// Store the claims in the Echo context
 			c.Set("user", claims)
 			return next(c)
 		}
 	}
 }
 
+// AdminOnly is a middleware that restricts access to admin users.
 func AdminOnly() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			user := c.Get("user").(*Claims)
-			if user.Role != "admin" {
+			// Retrieve the user claims from the context
+			userClaims, ok := c.Get("user").(*user.Claims)
+			if !ok || userClaims.Role != "admin" {
 				return echo.NewHTTPError(http.StatusForbidden, "admin access required")
 			}
+
 			return next(c)
 		}
 	}
+}
+
+// GetUserClaims retrieves the user claims from the Echo context.
+func GetUserClaims(c echo.Context) (*user.Claims, bool) {
+	claims, ok := c.Get("user").(*user.Claims)
+	return claims, ok
 }
