@@ -40,6 +40,7 @@ func generateToken() (string, error) {
 }
 
 // Register godoc
+//
 //	@Summary		Register new user
 //	@Description	Register a new user with email and password
 //	@Tags			auth
@@ -95,6 +96,7 @@ func (h *Handler) Register(c echo.Context) error {
 }
 
 // Login godoc
+//
 //	@Summary		User login
 //	@Description	Authenticate user and return JWT token
 //	@Tags			auth
@@ -143,6 +145,7 @@ func (h *Handler) Login(c echo.Context) error {
 }
 
 // ConfirmRegistration godoc
+//
 //	@Summary		Verify email address
 //	@Description	Verify user's email address using verification token
 //	@Tags			auth
@@ -182,6 +185,7 @@ func (h *Handler) ConfirmRegistration(c echo.Context) error {
 }
 
 // RequestPasswordReset godoc
+//
 //	@Summary		Request password reset
 //	@Description	Send password reset email to user
 //	@Tags			auth
@@ -234,6 +238,7 @@ func (h *Handler) RequestPasswordReset(c echo.Context) error {
 }
 
 // ConfirmPasswordReset godoc
+//
 //	@Summary		Confirm password reset
 //	@Description	Reset user's password using reset token
 //	@Tags			auth

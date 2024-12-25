@@ -7,24 +7,25 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/common-nighthawk/go-figure"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
-	echoSwagger "github.com/swaggo/echo-swagger"
-	"github.com/go-playground/validator/v10"
-	_ "github.com/nneji123/ecommerce-golang/docs"
-	"github.com/nneji123/ecommerce-golang/internal/common/email"
-	"github.com/nneji123/ecommerce-golang/internal/domain/user"
-	"go.uber.org/zap"
-
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/MadAppGang/httplog/echolog"
+	"github.com/common-nighthawk/go-figure"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
+	echoSwagger "github.com/swaggo/echo-swagger"
+	"go.uber.org/zap"
+
+	_ "github.com/nneji123/ecommerce-golang/docs"
+	"github.com/nneji123/ecommerce-golang/internal/common/email"
+	"github.com/nneji123/ecommerce-golang/internal/domain/user"
+
 	"github.com/nneji123/ecommerce-golang/internal/config"
 	"github.com/nneji123/ecommerce-golang/internal/db"
 	middlewares "github.com/nneji123/ecommerce-golang/internal/middleware"
@@ -42,9 +43,9 @@ import (
 //	@license.name	MIT
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@host	localhost:8080
-//	@BasePath
-//	@schemes	http
+// @host	localhost:8080
+// @BasePath
+// @schemes	http
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -80,14 +81,14 @@ func main() {
 	// Middleware
 	e.Use(echolog.LoggerWithName("ECHO NATIVE"))
 	e.Use(middleware.Recover())
-	e.Use(middlewares.CorsWithConfig(cfg))
+	// e.Use(middlewares.CorsWithConfig(cfg))
 	e.Use(middlewares.RateLimiterMiddleware(getRateLimitedRoutes()))
 
 	// Test Routes
 	e.GET("/ping", handleGetPing)
 	e.GET("/", handleGetRoot)
 	e.GET("/swagger/*any", echoSwagger.WrapHandler)
-	
+
 	// Initialize repositories
 	userRepo := user.NewRepository(database)
 	// Initialize email service
