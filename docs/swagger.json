@@ -1,13 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Leadz Aura API is a service for leads generation and outreach..",
-        "title": "Ecommerce API",
+        "description": "GoCommerce API is a service for leads generation and outreach..",
+        "title": "GoCommerce API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
-            "name": "Ecommerce Support",
-            "url": "http://Ecommerce.com",
-            "email": "contact@Ecommerce.com"
+            "name": "GoCommerce Support",
+            "url": "http://GoCommerce.com",
+            "email": "contact@GoCommerce.com"
         },
         "license": {
             "name": "MIT",

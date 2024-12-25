@@ -3,19 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/common-nighthawk/go-figure"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
-	"github.com/swaggo/echo-swagger"
 	"os/signal"
 	"runtime"
 	"syscall"
 
+	"github.com/common-nighthawk/go-figure"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/nneji123/ecommerce-golang/docs"
 	"github.com/nneji123/ecommerce-golang/internal/common/email"
 	"github.com/nneji123/ecommerce-golang/internal/domain/user"
 	"go.uber.org/zap"
+
+	"log"
+	"net/http"
+	"os"
+	"time"
 
 	"github.com/MadAppGang/httplog/echolog"
 	"github.com/labstack/echo/v4"
@@ -23,20 +28,16 @@ import (
 	"github.com/nneji123/ecommerce-golang/internal/config"
 	"github.com/nneji123/ecommerce-golang/internal/db"
 	middlewares "github.com/nneji123/ecommerce-golang/internal/middleware"
-	"log"
-	"net/http"
-	"os"
-	"time"
 )
 
-//	@title			Ecommerce API
+//	@title			GoCommerce API
 //	@version		1.0
-//	@description	Leadz Aura API is a service for leads generation and outreach..
+//	@description	GoCommerce API is a service for leads generation and outreach..
 //	@termsOfService	http://swagger.io/terms/
 
-//	@contact.name	Ecommerce Support
-//	@contact.url	http://Ecommerce.com
-//	@contact.email	contact@Ecommerce.com
+//	@contact.name	GoCommerce Support
+//	@contact.url	http://GoCommerce.com
+//	@contact.email	contact@GoCommerce.com
 
 //	@license.name	MIT
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
@@ -134,7 +135,7 @@ func main() {
 
 // List of open routes
 func getOpenRoutes() []string {
-	return []string{"/ping", "/send-email", "/swagger/*", "/healthcheck"}
+	return []string{"/ping", "/swagger/*", "/healthcheck"}
 }
 
 // Define list of rate-limited routes
@@ -152,7 +153,7 @@ func handleGetRoot(c echo.Context) error {
 }
 
 func printServerDetails(cfg config.Config) {
-	myFigure := figure.NewFigure("Leadz Aura", "", true)
+	myFigure := figure.NewFigure("GoCommerce", "", true)
 	myFigure.Print()
 
 	fmt.Println("\nServer Information:")

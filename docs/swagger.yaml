@@ -83,15 +83,15 @@ definitions:
 host: localhost:8080
 info:
   contact:
-    email: contact@Ecommerce.com
-    name: Ecommerce Support
-    url: http://Ecommerce.com
-  description: Leadz Aura API is a service for leads generation and outreach..
+    email: contact@GoCommerce.com
+    name: GoCommerce Support
+    url: http://GoCommerce.com
+  description: GoCommerce API is a service for leads generation and outreach..
   license:
     name: MIT
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Ecommerce API
+  title: GoCommerce API
   version: "1.0"
 paths:
   /auth/confirm-password-reset:
