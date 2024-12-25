@@ -11,8 +11,6 @@ services:
     env_file: .env
     restart: on-failure
     depends_on:
-      redis:
-        condition: service_started
       postgres:
         condition: service_started
     environment:
@@ -23,34 +21,14 @@ services:
       timeout: 10s
       retries: 3
 
-  asyncq:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ./asyncq
-    volumes:
-      - .env:/app/.env
-    depends_on:
-      redis:
-        condition: service_started
-    env_file: .env
-    restart: on-failure
-    environment:
-      - REDIS_ADDR=redis:6379
-
-  redis:
-    image: redis:7.2.4-alpine3.19
-    ports:
-      - "6379:6379"
-
   postgres:
     image: postgres:16-alpine3.19
     ports:
       - "5432:5432"
     environment:
       POSTGRES_DB: database
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_USER: myuser  # Make sure this matches the username in the connection string
+      POSTGRES_PASSWORD: mypassword  # Make sure this matches the password in the connection string
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
