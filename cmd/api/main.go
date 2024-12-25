@@ -34,7 +34,7 @@ import (
 
 //	@title			GoCommerce API
 //	@version		1.0
-//	@description	GoCommerce API is a service for leads generation and outreach.
+//	@description	GoCommerce API is a A robust and scalable e-commerce API built with Go, featuring user authentication, product management, order processing, and email notifications. Built using Echo framework and following Domain-Driven Design principles.
 //	@termsOfService	http://swagger.io/terms/
 
 //	@contact.name	GoCommerce Support

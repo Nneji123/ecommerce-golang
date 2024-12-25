@@ -53,18 +53,18 @@ func AuthMiddleware(secretKey string) echo.MiddlewareFunc {
 }
 
 func AdminMiddleware() echo.MiddlewareFunc {
-    return func(next echo.HandlerFunc) echo.HandlerFunc {
-        return func(c echo.Context) error {
-            claims, ok := c.Get("userClaims").(*models.Claims)
-            if !ok {
-                return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
-            }
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			claims, ok := c.Get("userClaims").(*models.Claims)
+			if !ok {
+				return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
+			}
 
-            if claims.Role != "admin" {
-                return echo.NewHTTPError(http.StatusForbidden, "admin access required")
-            }
+			if claims.Role != "admin" {
+				return echo.NewHTTPError(http.StatusForbidden, "admin access required")
+			}
 
-            return next(c)
-        }
-    }
+			return next(c)
+		}
+	}
 }

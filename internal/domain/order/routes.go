@@ -9,8 +9,8 @@ import (
 )
 
 func RegisterRoutes(e *echo.Echo, h *Handler) {
-    // All order routes require authentication
-    orders := e.Group("/orders")
+	// All order routes require authentication
+	orders := e.Group("/orders")
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -19,12 +19,12 @@ func RegisterRoutes(e *echo.Echo, h *Handler) {
 
 	orders.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 
-    // User routes
-    orders.POST("", h.Create)
-    orders.GET("", h.ListUserOrders)
-    orders.POST("/:id/cancel", h.CancelOrder)
+	// User routes
+	orders.POST("", h.Create)
+	orders.GET("", h.ListUserOrders)
+	orders.POST("/:id/cancel", h.CancelOrder)
 
-    // Admin routes
-    admin := orders.Group("", middleware.AdminMiddleware())
-    admin.PUT("/:id/status", h.UpdateStatus)
+	// Admin routes
+	admin := orders.Group("", middleware.AdminMiddleware())
+	admin.PUT("/:id/status", h.UpdateStatus)
 }
