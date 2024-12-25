@@ -39,8 +39,8 @@ type OrderItem struct {
 
 type CreateOrderRequest struct {
 	Items         []OrderItemRequest `json:"items" validate:"required,dive"`
-	ShippingAddr  string            `json:"shipping_address" validate:"required"`
-	PaymentMethod string            `json:"payment_method" validate:"required"`
+	ShippingAddr  string             `json:"shipping_address" validate:"required"`
+	PaymentMethod string             `json:"payment_method" validate:"required"`
 }
 
 type OrderItemRequest struct {

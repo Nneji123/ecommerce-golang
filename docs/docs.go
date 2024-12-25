@@ -24,25 +24,27 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/generate-emails": {
+        "/auth/confirm-password-reset": {
             "post": {
-                "description": "Generates email permutations based on the provided parameters.",
+                "description": "Reset user's password using reset token",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Generate email permutations",
-                "operationId": "handle-post-generate-emails",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm password reset",
                 "parameters": [
                     {
-                        "description": "Request body with parameters",
-                        "name": "body",
+                        "description": "Reset token and new password",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_emailapi_emailpermutator.GenerateEmailParams"
+                            "$ref": "#/definitions/user.ResetPasswordConfirmRequest"
                         }
                     }
                 ],
@@ -50,63 +52,174 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
+                            "type": "object",
+                            "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/leads": {
-            "get": {
-                "description": "Retrieves all leads from the database.",
-                "summary": "Retrieve all leads",
-                "operationId": "handle-get-all-leads",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.Lead"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    }
-                }
-            },
+        "/auth/confirm-registration": {
             "post": {
-                "security": [
-                    {
-                        "OAuth2Application": [
-                            "write"
-                        ]
-                    }
-                ],
-                "description": "Creates a new lead based on the provided parameters.",
+                "description": "Verify user's email address using verification token",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create a new lead",
-                "operationId": "handle-post-create-lead",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Verify email address",
                 "parameters": [
                     {
-                        "description": "Lead details",
-                        "name": "body",
+                        "description": "Verification token",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.Lead"
+                            "$ref": "#/definitions/user.VerifyEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate user and return JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User login",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password-reset-request": {
+            "post": {
+                "description": "Send password reset email to user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Request password reset",
+                "parameters": [
+                    {
+                        "description": "User email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.ResetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Register a new user with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "Registration details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.RegisterRequest"
                         }
                     }
                 ],
@@ -114,323 +227,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/db.Lead"
+                            "$ref": "#/definitions/user.User"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
+                            "$ref": "#/definitions/middleware.ErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/leads/{id}": {
-            "get": {
-                "description": "Retrieves a lead by its ID from the database.",
-                "summary": "Retrieve a lead by ID",
-                "operationId": "handle-get-lead",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.Lead"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Updates an existing lead with the provided information.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update an existing lead",
-                "operationId": "handle-update-lead",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated lead details",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/db.Lead"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.Lead"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a lead with the specified ID from the database.",
-                "summary": "Delete a lead by ID",
-                "operationId": "handle-delete-lead",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_leadsapi.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/send-email": {
-            "post": {
-                "description": "Parses the multipart form data into an EmailRequest struct and enqueues an email delivery task.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Send emails",
-                "operationId": "handle-post-send-emails",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "From email address",
-                        "name": "From",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "List of recipient email addresses",
-                        "name": "To",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "List of CC email addresses",
-                        "name": "CC",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "List of BCC email addresses",
-                        "name": "BCC",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email subject",
-                        "name": "Subject",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email body",
-                        "name": "Body",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "file"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "List of file attachments",
-                        "name": "Attachments",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "SMTP server address",
-                        "name": "Server",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "SMTP server port",
-                        "name": "Port",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "SMTP username",
-                        "name": "Username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "SMTP password",
-                        "name": "Password",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_emailapi_emailsender.JSONResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/validate-email": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2Application": [
-                            "callback"
-                        ]
-                    }
-                ],
-                "description": "Validates email addresses based on the provided parameters.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Validate emails",
-                "operationId": "handle-get-validate-email",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Email address to validate",
-                        "name": "email",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Perform SMTP check",
-                        "name": "smtp",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Perform SOCKS check",
-                        "name": "socks",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_emailapi_emailvalidator.validateResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_emailapi_emailvalidator.validateResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_emailapi_emailvalidator.validateResponse"
+                            "$ref": "#/definitions/middleware.ErrorResponse"
                         }
                     }
                 }
@@ -438,89 +247,123 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "db.Lead": {
+        "middleware.ErrorResponse": {
             "type": "object",
             "properties": {
-                "emailAddress": {
-                    "type": "string"
-                },
-                "id": {
+                "code": {
                     "type": "integer"
                 },
-                "leadListID": {
-                    "description": "Foreign key for the lead list",
-                    "type": "integer"
-                },
-                "linkedinURL": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "integer"
-                },
-                "scrapedDataFromLinkedin": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "website": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_emailapi_emailpermutator.GenerateEmailParams": {
-            "type": "object",
-            "properties": {
-                "domain1": {
-                    "type": "string"
-                },
-                "domain2": {
-                    "type": "string"
-                },
-                "domain3": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "middleName": {
-                    "type": "string"
-                },
-                "nickName": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_emailapi_emailsender.JSONResponse": {
-            "type": "object",
-            "properties": {
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "internal_emailapi_emailvalidator.validateResponse": {
+        "user.LoginRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
-                "error": {
+                "email": {
                     "type": "string"
                 },
-                "result": {}
+                "password": {
+                    "type": "string"
+                }
             }
         },
-        "internal_leadsapi.ErrorResponse": {
+        "user.LoginResponse": {
             "type": "object",
             "properties": {
-                "error": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user.User"
+                }
+            }
+        },
+        "user.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "user.ResetPasswordConfirmRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "token"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.ResetPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_email_verified": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.VerifyEmailRequest": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

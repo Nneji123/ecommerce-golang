@@ -11,12 +11,13 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/go-playground/validator/v10"
 	_ "github.com/nneji123/ecommerce-golang/docs"
+	"github.com/nneji123/ecommerce-golang/internal/common/email"
+	"github.com/nneji123/ecommerce-golang/internal/domain/user"
+	"go.uber.org/zap"
 
 	"github.com/MadAppGang/httplog/echolog"
-	"github.com/SporkHubr/echo-http-cache"
-	"github.com/SporkHubr/echo-http-cache/adapter/redis"
-	"github.com/hibiken/asynq"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/nneji123/ecommerce-golang/internal/config"
@@ -48,31 +49,28 @@ func main() {
 		log.Fatalf("Error loading configuration: %s", err)
 	}
 
-	// Connect to the database
-	_, err = db.Connect()
+	// Initialize logger
+	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		log.Fatalf("Failed to initialize logger: %v", err)
 	}
-	defer func() {
-		if err := db.Close(); err != nil {
-			log.Fatalf("Error closing database connection: %v", err)
-		}
-	}()
+	defer logger.Sync()
 
-	ringOpt := &redis.RingOptions{
-		Addrs: map[string]string{
-			"server": cfg.RedisAddr,
-		},
-	}
-	cacheClient, err := cache.NewClient(
-		cache.ClientWithAdapter(redis.NewAdapter(ringOpt)),
-		cache.ClientWithTTL(10*time.Minute),
-		cache.ClientWithRefreshKey("opn"),
-	)
+	// Initialize database using your db package
+	database, err := db.Connect()
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}
+
+	// Defer database connection close
+	sqlDB, err := database.DB()
+	if err != nil {
+		logger.Fatal("Failed to get database instance", zap.Error(err))
+	}
+	defer sqlDB.Close()
+
+	// Initialize validator
+	validate := validator.New()
 
 	// Instatiate Echo Instance
 	e := echo.New()
@@ -80,8 +78,6 @@ func main() {
 	// Middleware
 	e.Use(echolog.LoggerWithName("ECHO NATIVE"))
 	e.Use(middleware.Recover())
-	e.Use(cacheClient.Middleware())
-	// e.Use(middleware.AddTrailingSlash())
 	e.Use(middlewares.CorsWithConfig(cfg))
 	e.Use(middlewares.RateLimiterMiddleware(getRateLimitedRoutes()))
 
@@ -89,9 +85,34 @@ func main() {
 	e.GET("/ping", handleGetPing)
 	e.GET("/", handleGetRoot)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	// Create a new asynq client for enqueuing tasks.
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.RedisAddr})
-	defer client.Close()
+
+	// Initialize repositories
+	userRepo := user.NewRepository(database)
+	// Initialize email service
+	emailNotificationService, err := email.NewEmailNotificationService("smtp", &cfg)
+	if err != nil {
+		logger.Fatal("Failed to initialize email service", zap.Error(err))
+	}
+	// Initialize services
+	emailService := user.NewEmailService(emailNotificationService, &cfg)
+	authService := user.NewJWTService(cfg.JWTSecret)
+
+	// Initialize handlers
+	userHandler := user.NewHandler(
+		userRepo,
+		validate,
+		authService,
+		emailService,
+		logger,
+	)
+
+	// Register routes
+	user.RegisterRoutes(e, userHandler)
+
+	// Add user model to auto-migration
+	if err := database.AutoMigrate(&user.User{}); err != nil {
+		logger.Fatal("Failed to auto-migrate user model", zap.Error(err))
+	}
 
 	// Print server details
 	printServerDetails(cfg)

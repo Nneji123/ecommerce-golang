@@ -1,61 +1,84 @@
 basePath: /
 definitions:
-  db.Lead:
+  middleware.ErrorResponse:
     properties:
-      emailAddress:
-        type: string
-      id:
+      code:
         type: integer
-      leadListID:
-        description: Foreign key for the lead list
-        type: integer
-      linkedinURL:
-        type: string
-      location:
-        type: string
-      name:
-        type: string
-      phone:
-        type: integer
-      scrapedDataFromLinkedin:
-        items:
-          type: integer
-        type: array
-      website:
-        type: string
-    type: object
-  internal_emailapi_emailpermutator.GenerateEmailParams:
-    properties:
-      domain1:
-        type: string
-      domain2:
-        type: string
-      domain3:
-        type: string
-      firstName:
-        type: string
-      lastName:
-        type: string
-      middleName:
-        type: string
-      nickName:
-        type: string
-    type: object
-  internal_emailapi_emailsender.JSONResponse:
-    properties:
       message:
         type: string
     type: object
-  internal_emailapi_emailvalidator.validateResponse:
+  user.LoginRequest:
     properties:
-      error:
+      email:
         type: string
-      result: {}
+      password:
+        type: string
+    required:
+    - email
+    - password
     type: object
-  internal_leadsapi.ErrorResponse:
+  user.LoginResponse:
     properties:
-      error:
+      token:
         type: string
+      user:
+        $ref: '#/definitions/user.User'
+    type: object
+  user.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  user.ResetPasswordConfirmRequest:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      token:
+        type: string
+    required:
+    - password
+    - token
+    type: object
+  user.ResetPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  user.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_email_verified:
+        type: boolean
+      name:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  user.VerifyEmailRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
     type: object
 host: localhost:8080
 info:
@@ -71,281 +94,148 @@ info:
   title: Ecommerce API
   version: "1.0"
 paths:
-  /generate-emails:
+  /auth/confirm-password-reset:
     post:
       consumes:
       - application/json
-      description: Generates email permutations based on the provided parameters.
-      operationId: handle-post-generate-emails
+      description: Reset user's password using reset token
       parameters:
-      - description: Request body with parameters
+      - description: Reset token and new password
         in: body
-        name: body
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_emailapi_emailpermutator.GenerateEmailParams'
+          $ref: '#/definitions/user.ResetPasswordConfirmRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
+            additionalProperties:
               type: string
-            type: array
-      summary: Generate email permutations
-  /leads:
-    get:
-      description: Retrieves all leads from the database.
-      operationId: handle-get-all-leads
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Confirm password reset
+      tags:
+      - auth
+  /auth/confirm-registration:
+    post:
+      consumes:
+      - application/json
+      description: Verify user's email address using verification token
+      parameters:
+      - description: Verification token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.VerifyEmailRequest'
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/db.Lead'
-            type: array
-        "500":
-          description: Internal Server Error
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
           schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-      summary: Retrieve all leads
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Verify email address
+      tags:
+      - auth
+  /auth/login:
     post:
       consumes:
       - application/json
-      description: Creates a new lead based on the provided parameters.
-      operationId: handle-post-create-lead
+      description: Authenticate user and return JWT token
       parameters:
-      - description: Lead details
+      - description: Login credentials
         in: body
-        name: body
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/db.Lead'
+          $ref: '#/definitions/user.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: User login
+      tags:
+      - auth
+  /auth/password-reset-request:
+    post:
+      consumes:
+      - application/json
+      description: Send password reset email to user
+      parameters:
+      - description: User email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Request password reset
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and password
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.RegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/db.Lead'
+            $ref: '#/definitions/user.User'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-        "500":
-          description: Internal Server Error
+            $ref: '#/definitions/middleware.ErrorResponse'
+        "409":
+          description: Conflict
           schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-      security:
-      - OAuth2Application:
-        - write
-      summary: Create a new lead
-  /leads/{id}:
-    delete:
-      description: Deletes a lead with the specified ID from the database.
-      operationId: handle-delete-lead
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-      summary: Delete a lead by ID
-    get:
-      description: Retrieves a lead by its ID from the database.
-      operationId: handle-get-lead
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.Lead'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-      summary: Retrieve a lead by ID
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing lead with the provided information.
-      operationId: handle-update-lead
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Updated lead details
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/db.Lead'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.Lead'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
-      summary: Update an existing lead
-  /send-email:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Parses the multipart form data into an EmailRequest struct and
-        enqueues an email delivery task.
-      operationId: handle-post-send-emails
-      parameters:
-      - description: From email address
-        in: formData
-        name: From
-        required: true
-        type: string
-      - collectionFormat: csv
-        description: List of recipient email addresses
-        in: formData
-        items:
-          type: string
-        name: To
-        required: true
-        type: array
-      - collectionFormat: csv
-        description: List of CC email addresses
-        in: formData
-        items:
-          type: string
-        name: CC
-        type: array
-      - collectionFormat: csv
-        description: List of BCC email addresses
-        in: formData
-        items:
-          type: string
-        name: BCC
-        type: array
-      - description: Email subject
-        in: formData
-        name: Subject
-        required: true
-        type: string
-      - description: Email body
-        in: formData
-        name: Body
-        required: true
-        type: string
-      - collectionFormat: csv
-        description: List of file attachments
-        in: formData
-        items:
-          type: file
-        name: Attachments
-        type: array
-      - description: SMTP server address
-        in: formData
-        name: Server
-        required: true
-        type: string
-      - description: SMTP server port
-        in: formData
-        name: Port
-        required: true
-        type: string
-      - description: SMTP username
-        in: formData
-        name: Username
-        required: true
-        type: string
-      - description: SMTP password
-        in: formData
-        name: Password
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_emailapi_emailsender.JSONResponse'
-      summary: Send emails
-  /validate-email:
-    get:
-      consumes:
-      - application/json
-      description: Validates email addresses based on the provided parameters.
-      operationId: handle-get-validate-email
-      parameters:
-      - description: Email address to validate
-        in: query
-        name: email
-        required: true
-        type: string
-      - default: false
-        description: Perform SMTP check
-        in: query
-        name: smtp
-        type: boolean
-      - default: false
-        description: Perform SOCKS check
-        in: query
-        name: socks
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_emailapi_emailvalidator.validateResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/internal_emailapi_emailvalidator.validateResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/internal_emailapi_emailvalidator.validateResponse'
-      security:
-      - OAuth2Application:
-        - callback
-      summary: Validate emails
+            $ref: '#/definitions/middleware.ErrorResponse'
+      summary: Register new user
+      tags:
+      - auth
 swagger: "2.0"

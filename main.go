@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"github.com/nneji123/ecommerce-golang/internal/config"
 	"github.com/nneji123/ecommerce-golang/internal/common/email"
+	"github.com/nneji123/ecommerce-golang/internal/config"
+	"log"
 )
 
 func main() {

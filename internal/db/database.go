@@ -36,12 +36,6 @@ func Connect() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Perform auto migration for multiple tables
-	err = db.AutoMigrate(&LeadList{}, &Lead{})
-	if err != nil {
-		log.Fatalf("Error performing auto migration: %s", err)
-	}
-
 	DB = db
 
 	return db, nil

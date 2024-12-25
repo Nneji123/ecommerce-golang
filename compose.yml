@@ -54,15 +54,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
-  asyncqmon:
-    image:  hibiken/asynqmon
-    ports:
-      - 5555:5555
-    command: ["--port", "5555", "--redis-addr", "redis:6379", "--redis-db", "0"]
-    depends_on:
-      redis:
-        condition: service_started
-
   mailpit: # For email sending tests
     image: axllent/mailpit
     container_name: mailpit

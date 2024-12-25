@@ -8,23 +8,18 @@ import (
 
 // Config represents the application configuration
 type Config struct {
-	ServerPort         string   `mapstructure:"SERVER_PORT"`
-	RedisAddr          string   `mapstructure:"REDIS_ADDR"`
-	PostgresDSN        string   `mapstructure:"POSTGRES_DSN"`
-	AuthorizerClientID string   `mapstructure:"AUTHORIZER_CLIENT_ID"`
-	AuthorizerURL      string   `mapstructure:"AUTHORIZER_URL"`
-	RedirectURL        string   `mapstructure:"REDIRECT_URL"`
-	ProxyCurlAPIKey    string   `mapstructure:"PROXYCURL_API_KEY"`
-	AllowedOrigins     []string `mapstructure:"CORS_ALLOWED_ORIGINS"`
-	MJMLMinify         bool     `mapstructure:"MJML_MINIFY"`
-	MJMLPoolSize       int      `mapstructure:"MJML_POOL_SIZE"`
-	EmailFromAddress   string   `mapstructure:"EMAIL_FROM_ADDRESS"`
-	EmailFromName      string   `mapstructure:"EMAIL_FROM_NAME"`
-	SMTPServer         string   `mapstructure:"SMTP_SERVER"`
-	SMTPPort           int      `mapstructure:"SMTP_PORT"`
-	SMTPUser       	   string   `mapstructure:"SMTP_USER"`
-	SMTPPassword       string   `mapstructure:"SMTP_PASSWORD"`
-	SMTPHost           string     `mapstructure:"SMTP_HOST"`
+	ServerPort       string   `mapstructure:"SERVER_PORT"`
+	PostgresDSN      string   `mapstructure:"POSTGRES_DSN"`
+	AllowedOrigins   []string `mapstructure:"CORS_ALLOWED_ORIGINS"`
+	EmailFromAddress string   `mapstructure:"EMAIL_FROM_ADDRESS"`
+	EmailFromName    string   `mapstructure:"EMAIL_FROM_NAME"`
+	SMTPServer       string   `mapstructure:"SMTP_SERVER"`
+	SMTPPort         int      `mapstructure:"SMTP_PORT"`
+	SMTPUser         string   `mapstructure:"SMTP_USER"`
+	SMTPPassword     string   `mapstructure:"SMTP_PASSWORD"`
+	SMTPHost         string   `mapstructure:"SMTP_HOST"`
+	AppURL           string   `mapstructure:"APP_URL"`
+	JWTSecret        string   `mapstructure:"JWT_SECRET"`
 }
 
 // LoadConfig loads configuration from various sources
