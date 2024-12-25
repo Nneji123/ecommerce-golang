@@ -3,13 +3,13 @@ package user
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"net/http"
-	"time"
-	"github.com/nneji123/ecommerce-golang/internal/common/models"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/nneji123/ecommerce-golang/internal/common/models"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
+	"time"
 )
 
 type Handler struct {
@@ -299,27 +299,27 @@ func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 //	@Failure		401	{object}	middleware.ErrorResponse
 //	@Router			/user/detail [get]
 func (h *Handler) UserDetail(c echo.Context) error {
-    // Use the specific key we set in middleware
-    claims, ok := c.Get("userClaims").(*models.Claims)
-    if !ok {
-        h.logger.Error("Handler: Claims not found in context")
-        return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
-    }
+	// Use the specific key we set in middleware
+	claims, ok := c.Get("userClaims").(*models.Claims)
+	if !ok {
+		h.logger.Error("Handler: Claims not found in context")
+		return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
+	}
 
-    // Create a response struct
-    response := struct {
-        UserID    uint   `json:"user_id"`
-        Email     string `json:"email"`
-        Role      string `json:"role"`
-    }{
-        UserID:    claims.UserID,
-        Email:     claims.Email,
-        Role:      claims.Role,
-    }
+	// Create a response struct
+	response := struct {
+		UserID uint   `json:"user_id"`
+		Email  string `json:"email"`
+		Role   string `json:"role"`
+	}{
+		UserID: claims.UserID,
+		Email:  claims.Email,
+		Role:   claims.Role,
+	}
 
-    h.logger.Info("Handler: User details retrieved",
-        zap.Uint("user_id", claims.UserID),
-        zap.String("email", claims.Email))
-    
-    return c.JSON(http.StatusOK, response)
+	h.logger.Info("Handler: User details retrieved",
+		zap.Uint("user_id", claims.UserID),
+		zap.String("email", claims.Email))
+
+	return c.JSON(http.StatusOK, response)
 }

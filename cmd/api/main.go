@@ -100,8 +100,7 @@ func main() {
 
 	user.RegisterRoutes(e, userHandler)
 
-	if err := database.AutoMigrate(&user.User{}); 
-	err != nil {
+	if err := database.AutoMigrate(&user.User{}); err != nil {
 		logger.Fatal("Failed to auto-migrate user model", zap.Error(err))
 	}
 

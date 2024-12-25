@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-    "github.com/nneji123/ecommerce-golang/internal/common/models"
+	"github.com/nneji123/ecommerce-golang/internal/common/models"
 )
 
 // AuthMiddleware validates JWT tokens and extracts user claims.
@@ -60,7 +60,6 @@ func GetUserFromContext(c echo.Context) *models.Claims {
 	}
 	return user
 }
-
 
 // AdminOnly is a middleware that restricts access to admin users.
 func AdminOnly() echo.MiddlewareFunc {
