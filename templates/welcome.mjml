@@ -9,7 +9,6 @@
   <mj-body background-color="#f4f4f4">
     <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
       <mj-column width="100%">
-        <mj-image src="https://via.placeholder.com/200x50" alt="Logo" align="center" width="200px" />
       </mj-column>
     </mj-section>
     <mj-section background-color="#ffffff" padding-bottom="0px" padding-top="0">
@@ -21,7 +20,7 @@
       <mj-column width="100%">
         <mj-text font-size="24px" color="#4CAF50" font-weight="bold">Welcome to Our Service!</mj-text>
         <mj-text font-size="16px" color="#000000">
-          We're thrilled to have you with us. Here are a few things you can do to get started:
+          Hello {{ .FirstName }} {{ .LastName }}, we're thrilled to have you with us. Here are a few things you can do to get started:
         </mj-text>
         <mj-text font-size="16px" color="#000000">
           <ul>

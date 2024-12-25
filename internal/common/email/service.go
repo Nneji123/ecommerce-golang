@@ -1,72 +1,72 @@
 package email
 
 import (
-	"encoding/json"
 	"fmt"
-	"html/template"
-	"path/filepath"
-
-	"github.com/hibiken/asynq"
-	"github.com/wneessen/go-mjml"
+	"github.com/nneji123/ecommerce-golang/internal/config"
 )
 
-// NewEmailService initializes the email service
-func NewEmailService(templateDir string, fromEmail, fromName string, queue AsyncQueue) (*emailService, error) {
-	templates, err := template.ParseGlob(filepath.Join(templateDir, "*.mjml"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse email templates: %w", err)
-	}
-
-	return &emailService{
-		templates:  templates,
-		fromEmail:  fromEmail,
-		fromName:   fromName,
-		asyncQueue: queue,
-	}, nil
+type EmailNotificationService struct {
+    service EmailService
 }
 
-// SendEmail queues an email for asynchronous processing
-func (s *emailService) SendEmail(subject, templatePath string, toEmail string, context map[string]interface{}, attachments []Attachment) error {
-	// Create the email task
-	task := EmailTask{
-		Subject:     subject,
-		Template:    templatePath,
-		ToEmail:     toEmail,
-		Context:     context,
-		Attachments: attachments,
-		FromEmail:   s.fromEmail,
-		FromName:    s.fromName,
-	}
+func NewEmailNotificationService(serviceType string, config *config.Config) (*EmailNotificationService, error) {
+    var service EmailService
 
-	// Queue the email task
-	return s.asyncQueue.Enqueue("email:send", task)
+    switch serviceType {
+    case "smtp":
+        service = NewSMTPService(config)
+    case "sendgrid":
+        service = NewSendGridService(config)
+    default:
+        return nil, fmt.Errorf("unsupported email service type: %s", serviceType)
+    }
+
+    return &EmailNotificationService{service: service}, nil
 }
 
-// EnqueueTask handles queuing an email task with asynq
-func (q *asynqQueue) Enqueue(queue string, task EmailTask) error {
-	payload, err := json.Marshal(task)
-	if err != nil {
-		return fmt.Errorf("failed to marshal email task: %w", err)
-	}
-
-	// Create an Asynq task with the payload
-	asynqTask := asynq.NewTask(queue, payload)
-
-	// Add the task to the queue
-	_, err = q.client.Enqueue(asynqTask)
-	if err != nil {
-		return fmt.Errorf("failed to enqueue task: %w", err)
-	}
-
-	return nil
+func (s *EmailNotificationService) SendEmail(subject, templatePath string, toEmail string, context map[string]interface{}, attachments []Attachment) error {
+    return s.service.SendEmail(subject, templatePath, toEmail, context, attachments)
 }
 
-// asynqQueue wraps the Asynq client for task enqueuing
-type asynqQueue struct {
-	client *asynq.Client
+// SMTP Service implementation
+type SMTPService struct {
+    config *config.Config
 }
 
-// NewAsynqQueue creates a new instance of asynqQueue
-func NewAsynqQueue(client *asynq.Client) *asynqQueue {
-	return &asynqQueue{client: client}
+func NewSMTPService(config *config.Config) *SMTPService {
+    return &SMTPService{config: config}
+}
+
+func (s *SMTPService) SendEmail(subject, templatePath string, toEmail string, context map[string]interface{}, attachments []Attachment) error {
+    html, text, err := RenderTemplate(templatePath, context)
+    if err != nil {
+        return fmt.Errorf("failed to render template: %w", err)
+    }
+
+    msg := NewEmailMessage()
+    msg.SetFrom(fmt.Sprintf("%s <%s>", s.config.EmailFromName, s.config.EmailFromAddress))
+    msg.SetTo(toEmail)
+    msg.SetSubject(subject)
+    msg.SetBody(html, text)
+    msg.AddAttachments(attachments)
+
+    if err := msg.Send(s.config); err != nil {
+        return fmt.Errorf("failed to send email: %w", err)
+    }
+
+    return nil
+}
+
+// SendGrid Service implementation
+type SendGridService struct {
+    config *config.Config
+}
+
+func NewSendGridService(config *config.Config) *SendGridService {
+    return &SendGridService{config: config}
+}
+
+func (s *SendGridService) SendEmail(subject, templatePath string, toEmail string, context map[string]interface{}, attachments []Attachment) error {
+    // Implementation similar to SMTPService but using SendGrid API
+    return nil
 }

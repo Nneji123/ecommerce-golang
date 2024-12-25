@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 // Config represents the application configuration
@@ -15,6 +16,15 @@ type Config struct {
 	RedirectURL        string   `mapstructure:"REDIRECT_URL"`
 	ProxyCurlAPIKey    string   `mapstructure:"PROXYCURL_API_KEY"`
 	AllowedOrigins     []string `mapstructure:"CORS_ALLOWED_ORIGINS"`
+	MJMLMinify         bool     `mapstructure:"MJML_MINIFY"`
+	MJMLPoolSize       int      `mapstructure:"MJML_POOL_SIZE"`
+	EmailFromAddress   string   `mapstructure:"EMAIL_FROM_ADDRESS"`
+	EmailFromName      string   `mapstructure:"EMAIL_FROM_NAME"`
+	SMTPServer         string   `mapstructure:"SMTP_SERVER"`
+	SMTPPort           int      `mapstructure:"SMTP_PORT"`
+	SMTPUser       	   string   `mapstructure:"SMTP_USER"`
+	SMTPPassword       string   `mapstructure:"SMTP_PASSWORD"`
+	SMTPHost           string     `mapstructure:"SMTP_HOST"`
 }
 
 // LoadConfig loads configuration from various sources
