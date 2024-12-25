@@ -28,7 +28,6 @@ import (
 
 	"github.com/nneji123/ecommerce-golang/internal/config"
 	"github.com/nneji123/ecommerce-golang/internal/db"
-	middlewares "github.com/nneji123/ecommerce-golang/internal/middleware"
 )
 
 //	@title			GoCommerce API
@@ -52,14 +51,12 @@ func main() {
 		log.Fatalf("Error loading configuration: %s", err)
 	}
 
-	// Initialize logger
 	logger, err := zap.NewProduction()
 	if err != nil {
 		log.Fatalf("Failed to initialize logger: %v", err)
 	}
 	defer logger.Sync()
 
-	// Initialize database using your db package
 	database, err := db.Connect()
 	if err != nil {
 		logger.Fatal("Failed to connect to database", zap.Error(err))
@@ -72,31 +69,23 @@ func main() {
 	}
 	defer sqlDB.Close()
 
-	// Initialize validator
 	validate := validator.New()
 
-	// Instatiate Echo Instance
 	e := echo.New()
 
-	// Middleware
 	e.Use(echolog.LoggerWithName("ECHO NATIVE"))
 	e.Use(middleware.Recover())
-	// e.Use(middlewares.CorsWithConfig(cfg))
-	e.Use(middlewares.RateLimiterMiddleware(getRateLimitedRoutes()))
 
 	// Test Routes
 	e.GET("/ping", handleGetPing)
 	e.GET("/", handleGetRoot)
 	e.GET("/swagger/*any", echoSwagger.WrapHandler)
 
-	// Initialize repositories
 	userRepo := user.NewRepository(database)
-	// Initialize email service
 	emailNotificationService, err := email.NewEmailNotificationService("smtp", &cfg)
 	if err != nil {
 		logger.Fatal("Failed to initialize email service", zap.Error(err))
 	}
-	// Initialize services
 	emailService := user.NewEmailService(emailNotificationService, &cfg)
 	authService := user.NewJWTService(cfg.JWTSecret)
 
@@ -109,18 +98,15 @@ func main() {
 		logger,
 	)
 
-	// Register routes
 	user.RegisterRoutes(e, userHandler)
 
-	// Add user model to auto-migration
-	if err := database.AutoMigrate(&user.User{}); err != nil {
+	if err := database.AutoMigrate(&user.User{}); 
+	err != nil {
 		logger.Fatal("Failed to auto-migrate user model", zap.Error(err))
 	}
 
-	// Print server details
 	printServerDetails(cfg)
 
-	// Start server in a separate goroutine
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.ServerPort),
 		Handler: e,
@@ -133,16 +119,6 @@ func main() {
 
 	// Graceful shutdown
 	shutdownServer(srv)
-}
-
-// List of open routes
-func getOpenRoutes() []string {
-	return []string{"/ping", "/swagger/*", "/healthcheck"}
-}
-
-// Define list of rate-limited routes
-func getRateLimitedRoutes() []string {
-	return []string{"/ping", "/healthcheck"}
 }
 
 // HandlePing

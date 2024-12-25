@@ -4,10 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
-	"strconv"
 	"time"
-	"fmt"
-
+	"github.com/nneji123/ecommerce-golang/internal/common/models"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -301,25 +299,27 @@ func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 //	@Failure		401	{object}	middleware.ErrorResponse
 //	@Router			/user/detail [get]
 func (h *Handler) UserDetail(c echo.Context) error {
-	claims, ok := c.Get("user").(*Claims)
-	fmt.Printf("%+v\n", claims)
-	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
-	}
+    // Use the specific key we set in middleware
+    claims, ok := c.Get("userClaims").(*models.Claims)
+    if !ok {
+        h.logger.Error("Handler: Claims not found in context")
+        return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
+    }
 
-	userID, err := strconv.ParseUint(claims.ID, 10, 32)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid user ID format")
-	}
+    // Create a response struct
+    response := struct {
+        UserID    uint   `json:"user_id"`
+        Email     string `json:"email"`
+        Role      string `json:"role"`
+    }{
+        UserID:    claims.UserID,
+        Email:     claims.Email,
+        Role:      claims.Role,
+    }
 
-	// Retrieve user from the repository
-	user, err := h.repo.FindByID(uint(userID))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve user information")
-	}
-	if user == nil {
-		return echo.NewHTTPError(http.StatusNotFound, "user not found")
-	}
-
-	return c.JSON(http.StatusOK, user)
+    h.logger.Info("Handler: User details retrieved",
+        zap.Uint("user_id", claims.UserID),
+        zap.String("email", claims.Email))
+    
+    return c.JSON(http.StatusOK, response)
 }

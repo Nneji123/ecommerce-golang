@@ -5,19 +5,13 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/nneji123/ecommerce-golang/internal/common/models"
 )
 
 // AuthService defines methods for token generation and validation.
 type AuthService interface {
 	GenerateToken(userID uint, email, role string) (string, error)
-	ValidateToken(token string) (*Claims, error)
-}
-
-type Claims struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
-	jwt.RegisteredClaims
+	ValidateToken(token string) (*models.Claims, error)
 }
 
 // jwtService implements the AuthService interface.
@@ -32,7 +26,7 @@ func NewJWTService(secretKey string) AuthService {
 
 // GenerateToken creates a new JWT for a user.
 func (s *jwtService) GenerateToken(userID uint, email, role string) (string, error) {
-	claims := &Claims{
+	claims := &models.Claims{
 		UserID: userID,
 		Email:  email,
 		Role:   role,
@@ -53,8 +47,8 @@ func (s *jwtService) GenerateToken(userID uint, email, role string) (string, err
 }
 
 // ValidateToken validates a JWT and returns the claims if valid.
-func (s *jwtService) ValidateToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+func (s *jwtService) ValidateToken(tokenString string) (*models.Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -69,7 +63,7 @@ func (s *jwtService) ValidateToken(tokenString string) (*Claims, error) {
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	claims, ok := token.Claims.(*Claims)
+	claims, ok := token.Claims.(*models.Claims)
 	if !ok {
 		return nil, fmt.Errorf("invalid claims structure")
 	}

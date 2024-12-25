@@ -37,6 +37,10 @@ A robust and scalable e-commerce API built with Go, featuring user authenticatio
   - Multiple provider support (SMTP, SendGrid, etc.)
   - Attachment handling
 
+- **API Documentation**
+  - Fully documented using Swagger
+  - Interactive API exploration and testing available at `/swagger/index.html`
+
 ## Architecture
 
 The project follows Domain-Driven Design principles with a clean architecture:

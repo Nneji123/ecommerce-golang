@@ -23,18 +23,10 @@ func RegisterRoutes(e *echo.Echo, h *Handler) {
 		log.Fatalf("Error loading configuration: %s", err)
 	}
 
-    // Protected routes group
-    user := e.Group("/user")
-    user.Use(middleware.AuthMiddleware(cfg.JWTSecret))
-    {
-        user.GET("/detail", h.UserDetail)
-        
-        // Admin-only routes (if you have any)
-        admin := user.Group("")
-        admin.Use(middleware.RequireRole("admin"))
-        {
-            // Add admin routes here
-            // admin.GET("/all-users", h.ListAllUsers)
-        }
-    }
+    // Define protected route group
+    protected := e.Group("/user")
+    protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))
+
+    // Register protected routes
+    protected.GET("/detail", h.UserDetail)
 }
