@@ -32,7 +32,7 @@ import (
 
 //	@title			GoCommerce API
 //	@version		1.0
-//	@description	GoCommerce API is a service for leads generation and outreach..
+//	@description	GoCommerce API is a service for leads generation and outreach.
 //	@termsOfService	http://swagger.io/terms/
 
 //	@contact.name	GoCommerce Support
@@ -42,8 +42,9 @@ import (
 //	@license.name	MIT
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host		localhost:8080
-// @BasePath	/
+//	@host	localhost:8080
+//	@BasePath
+//	@schemes	http
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -85,8 +86,8 @@ func main() {
 	// Test Routes
 	e.GET("/ping", handleGetPing)
 	e.GET("/", handleGetRoot)
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
-
+	e.GET("/swagger/*any", echoSwagger.WrapHandler)
+	
 	// Initialize repositories
 	userRepo := user.NewRepository(database)
 	// Initialize email service

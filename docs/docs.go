@@ -375,10 +375,10 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/",
-	Schemes:          []string{},
+	BasePath:         "",
+	Schemes:          []string{"http"},
 	Title:            "GoCommerce API",
-	Description:      "GoCommerce API is a service for leads generation and outreach..",
+	Description:      "GoCommerce API is a service for leads generation and outreach.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

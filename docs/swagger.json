@@ -1,7 +1,10 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
-        "description": "GoCommerce API is a service for leads generation and outreach..",
+        "description": "GoCommerce API is a service for leads generation and outreach.",
         "title": "GoCommerce API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -16,7 +19,6 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/",
     "paths": {
         "/auth/confirm-password-reset": {
             "post": {
