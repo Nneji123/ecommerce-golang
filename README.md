@@ -101,14 +101,14 @@ API documentation is available at `/swagger/index.html` when running the server.
   - POST `/auth/login`
 
 - **Products**
-  - GET `/api/products`
-  - POST `/api/admin/products` (Admin only)
-  - PUT `/api/admin/products/{id}` (Admin only)
+  - GET `/products`
+  - POST `/products` (Admin only)
+  - PUT `/products/{id}` (Admin only)
 
 - **Orders**
-  - POST `/api/orders`
-  - GET `/api/orders`
-  - PUT `/api/orders/{id}/status` (Admin only)
+  - POST `/orders`
+  - GET `/orders`
+  - PUT `/orders/{id}/status` (Admin only)
 
 ## Docker Setup
 
@@ -139,6 +139,7 @@ This will start:
 To view emails sent from the application during development (e.g., registration confirmation, password reset), you can use **Mailpit**. This is a simple, local email testing server that is started with Docker.
 
 Once the services are running, visit [http://localhost:8025](http://localhost:8025) in your browser to view incoming emails. SMTP messages are sent to **Mailpit** using port **1025**, which is automatically configured in the Docker Compose file.
+![mailpit](https://github.com/user-attachments/assets/af1468a1-c801-4f1f-af3f-7cd6f56e86b2)
 
 ### 3. **Additional Docker Commands**
 
