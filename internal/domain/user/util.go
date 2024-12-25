@@ -13,7 +13,6 @@ type AuthService interface {
 	ValidateToken(token string) (*Claims, error)
 }
 
-// Claims represents the JWT claims.
 type Claims struct {
 	UserID uint   `json:"user_id"`
 	Email  string `json:"email"`

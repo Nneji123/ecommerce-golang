@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -75,13 +76,17 @@ func (h *Handler) Register(c echo.Context) error {
 		return err
 	}
 
+	expiryTime := time.Now().Add(24 * time.Hour)
+
 	user := &User{
 		Email:                   req.Email,
 		Password:                req.Password,
 		Name:                    req.Name,
 		Role:                    "user",
-		EmailVerificationToken:  token,
-		EmailVerificationExpiry: time.Now().Add(24 * time.Hour),
+		EmailVerificationToken:  &token,
+		EmailVerificationExpiry: &expiryTime,
+		PasswordResetToken:      nil,
+		PasswordResetExpiry:     nil,
 	}
 
 	if err := h.repo.Create(user); err != nil {
@@ -146,16 +151,15 @@ func (h *Handler) Login(c echo.Context) error {
 }
 
 // ConfirmRegistration godoc
-//
-//	@Summary		Verify email address
-//	@Description	Verify user's email address using verification token
-//	@Tags			auth
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		VerifyEmailRequest	true	"Verification token"
-//	@Success		200		{object}	map[string]string
-//	@Failure		400		{object}	middleware.ErrorResponse
-//	@Router			/auth/confirm-registration [post]
+// @Summary Verify email address
+// @Description Verify user's email address using verification token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body VerifyEmailRequest true "Verification token"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} middleware.ErrorResponse
+// @Router /auth/confirm-registration [post]
 func (h *Handler) ConfirmRegistration(c echo.Context) error {
 	var req VerifyEmailRequest
 	if err := c.Bind(&req); err != nil {
@@ -175,7 +179,9 @@ func (h *Handler) ConfirmRegistration(c echo.Context) error {
 	}
 
 	user.IsEmailVerified = true
-	user.EmailVerificationToken = ""
+	user.EmailVerificationToken = nil  // Set to nil instead of empty string
+	user.EmailVerificationExpiry = nil // Clear the expiry time as well
+
 	if err := h.repo.Update(user); err != nil {
 		return err
 	}
@@ -186,16 +192,15 @@ func (h *Handler) ConfirmRegistration(c echo.Context) error {
 }
 
 // RequestPasswordReset godoc
-//
-//	@Summary		Request password reset
-//	@Description	Send password reset email to user
-//	@Tags			auth
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		ResetPasswordRequest	true	"User email"
-//	@Success		200		{object}	map[string]string
-//	@Failure		400		{object}	middleware.ErrorResponse
-//	@Router			/auth/password-reset-request [post]
+// @Summary Request password reset
+// @Description Send password reset email to user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body ResetPasswordRequest true "User email"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} middleware.ErrorResponse
+// @Router /auth/password-reset-request [post]
 func (h *Handler) RequestPasswordReset(c echo.Context) error {
 	var req ResetPasswordRequest
 	if err := c.Bind(&req); err != nil {
@@ -223,8 +228,10 @@ func (h *Handler) RequestPasswordReset(c echo.Context) error {
 		return err
 	}
 
-	user.PasswordResetToken = token
-	user.PasswordResetExpiry = time.Now().Add(1 * time.Hour)
+	expiryTime := time.Now().Add(1 * time.Hour)
+	user.PasswordResetToken = &token
+	user.PasswordResetExpiry = &expiryTime
+
 	if err := h.repo.Update(user); err != nil {
 		return err
 	}
@@ -239,16 +246,15 @@ func (h *Handler) RequestPasswordReset(c echo.Context) error {
 }
 
 // ConfirmPasswordReset godoc
-//
-//	@Summary		Confirm password reset
-//	@Description	Reset user's password using reset token
-//	@Tags			auth
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		ResetPasswordConfirmRequest	true	"Reset token and new password"
-//	@Success		200		{object}	map[string]string
-//	@Failure		400		{object}	middleware.ErrorResponse
-//	@Router			/auth/confirm-password-reset [post]
+// @Summary Confirm password reset
+// @Description Reset user's password using reset token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body ResetPasswordConfirmRequest true "Reset token and new password"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} middleware.ErrorResponse
+// @Router /auth/confirm-password-reset [post]
 func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 	var req ResetPasswordConfirmRequest
 	if err := c.Bind(&req); err != nil {
@@ -273,8 +279,8 @@ func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 	}
 
 	user.Password = string(hashedPassword)
-	user.PasswordResetToken = ""
-	user.PasswordResetExpiry = time.Time{}
+	user.PasswordResetToken = nil  // Set to nil instead of empty string
+	user.PasswordResetExpiry = nil // Set to nil instead of zero time
 
 	if err := h.repo.Update(user); err != nil {
 		return err
@@ -296,6 +302,7 @@ func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 //	@Router			/user/detail [get]
 func (h *Handler) UserDetail(c echo.Context) error {
 	claims, ok := c.Get("user").(*Claims)
+	fmt.Printf("%+v\n", claims)
 	if !ok {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid or missing user claims")
 	}
@@ -316,4 +323,3 @@ func (h *Handler) UserDetail(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, user)
 }
-

@@ -1,6 +1,6 @@
 <mjml>
   <mj-head>
-    <mj-title>Registration Confirmation</mj-title>
+    <mj-title>Verify Your Email</mj-title>
     <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Roboto" />
     <mj-attributes>
       <mj-all font-family="Roboto, Helvetica, sans-serif" />
@@ -8,9 +8,6 @@
   </mj-head>
   <mj-body background-color="#f4f4f4">
     <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
-      <mj-column width="100%">
-        <mj-image src="https://via.placeholder.com/200x50" alt="Logo" align="center" width="200px" />
-      </mj-column>
     </mj-section>
     <mj-section background-color="#ffffff" padding-bottom="0px" padding-top="0">
       <mj-column width="100%">
@@ -19,13 +16,22 @@
     </mj-section>
     <mj-section background-color="#ffffff" padding-bottom="20px" padding-top="20px">
       <mj-column width="100%">
-        <mj-text font-size="24px" color="#F45E43" font-weight="bold">Registration Confirmation</mj-text>
+        <mj-text font-size="24px" color="#F45E43" font-weight="bold">Verify Your Email</mj-text>
         <mj-text font-size="16px" color="#000000">
-          Thank you for registering with us! We're excited to have you on board. Please confirm your registration by clicking the button below:
+          Thank you for registering with us! We're excited to have you on board. Please verify your email address by clicking the button below:
         </mj-text>
-        <mj-button background-color="#F45E43" color="white" href="https://yourwebsite.com/confirm">
-          Confirm Registration
+        <mj-button background-color="#F45E43" color="white" href="{{.VerificationLink}}">
+          Verify Email
         </mj-button>
+        <mj-text font-size="14px" color="#555555">
+          If you're having trouble with the button above, you can also copy and paste the following link into your browser:
+        </mj-text>
+        <mj-text font-size="14px" color="#555555">
+          {{.VerificationLink}}
+        </mj-text>
+        <mj-text font-size="14px" color="#555555">
+          Your verification token is: {{.Token}}
+        </mj-text>
         <mj-text font-size="14px" color="#555555">
           If you didn't register for an account, please ignore this email.
         </mj-text>

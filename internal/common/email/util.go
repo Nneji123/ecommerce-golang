@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"path/filepath"
 	"log"
+	"path/filepath"
 
 	"github.com/Boostport/mjml-go"
 	"jaytaylor.com/html2text"

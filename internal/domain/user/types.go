@@ -13,10 +13,10 @@ type User struct {
 	Name                    string         `json:"name" gorm:"not null"`
 	Role                    string         `json:"role" gorm:"default:'user'"`
 	IsEmailVerified         bool           `json:"is_email_verified" gorm:"default:false"`
-	EmailVerificationToken  string         `json:"-" gorm:"uniqueIndex"`
-	EmailVerificationExpiry time.Time      `json:"-"`
-	PasswordResetToken      string         `json:"-" gorm:"uniqueIndex"`
-	PasswordResetExpiry     time.Time      `json:"-"`
+	EmailVerificationToken  *string        `json:"-" gorm:"uniqueIndex;default:null"`
+	EmailVerificationExpiry *time.Time     `json:"-"`
+	PasswordResetToken      *string        `json:"-" gorm:"uniqueIndex;default:null"`
+	PasswordResetExpiry     *time.Time     `json:"-"`
 	CreatedAt               time.Time      `json:"created_at"`
 	UpdatedAt               time.Time      `json:"updated_at"`
 	DeletedAt               gorm.DeletedAt `json:"-" gorm:"index"`

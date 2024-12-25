@@ -17,9 +17,9 @@ type Repository interface {
 	Update(user *User) error
 }
 
-func (r *repository) FindByEmailVerificationToken(token string) (*User, error) {
+func (r *repository) FindByPasswordResetToken(token string) (*User, error) {
 	var user User
-	err := r.db.Where("email_verification_token = ? AND email_verification_expiry > ?",
+	err := r.db.Where("password_reset_token = ? AND password_reset_expiry > ?",
 		token, time.Now()).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -30,9 +30,9 @@ func (r *repository) FindByEmailVerificationToken(token string) (*User, error) {
 	return &user, nil
 }
 
-func (r *repository) FindByPasswordResetToken(token string) (*User, error) {
+func (r *repository) FindByEmailVerificationToken(token string) (*User, error) {
 	var user User
-	err := r.db.Where("password_reset_token = ? AND password_reset_expiry > ?",
+	err := r.db.Where("email_verification_token = ? AND email_verification_expiry > ?",
 		token, time.Now()).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
