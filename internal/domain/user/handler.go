@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/your/project/internal/middleware"
+	"github.com/nneji123/ecommerce-golang/internal/middleware"
 )
 
 // @Summary Register new user

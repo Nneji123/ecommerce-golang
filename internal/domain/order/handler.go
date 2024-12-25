@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/your/project/internal/middleware"
-	"github.com/your/project/internal/domain/product"
+	"github.com/nneji123/ecommerce-golang/internal/middleware"
+	"github.com/nneji123/ecommerce-golang/internal/domain/product"
 )
 
 type Handler struct {
