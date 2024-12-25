@@ -8,13 +8,12 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/api cmd/api/main.go && \
-    CGO_ENABLED=0 GOOS=linux go build -o /app/asyncq cmd/tasks/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/api cmd/api/main.go
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/api /app/asyncq /app/
+COPY --from=builder /app/api /app/
 
 EXPOSE 8080
