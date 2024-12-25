@@ -1,0 +1,11 @@
+# *.env
+.gitignore
+.golangci.yaml
+Caddyfile
+compose.yml
+LICENSE
+README.md
+.github/
+Makefile
+bin/
+.env.sample

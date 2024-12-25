@@ -1,0 +1,351 @@
+basePath: /
+definitions:
+  db.Lead:
+    properties:
+      emailAddress:
+        type: string
+      id:
+        type: integer
+      leadListID:
+        description: Foreign key for the lead list
+        type: integer
+      linkedinURL:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      phone:
+        type: integer
+      scrapedDataFromLinkedin:
+        items:
+          type: integer
+        type: array
+      website:
+        type: string
+    type: object
+  internal_emailapi_emailpermutator.GenerateEmailParams:
+    properties:
+      domain1:
+        type: string
+      domain2:
+        type: string
+      domain3:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      middleName:
+        type: string
+      nickName:
+        type: string
+    type: object
+  internal_emailapi_emailsender.JSONResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_emailapi_emailvalidator.validateResponse:
+    properties:
+      error:
+        type: string
+      result: {}
+    type: object
+  internal_leadsapi.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: contact@leadzaura.com
+    name: LeadzAura Support
+    url: http://leadzaura.com
+  description: Leadz Aura API is a service for leads generation and outreach..
+  license:
+    name: MIT
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: LeadzAura API
+  version: "1.0"
+paths:
+  /generate-emails:
+    post:
+      consumes:
+      - application/json
+      description: Generates email permutations based on the provided parameters.
+      operationId: handle-post-generate-emails
+      parameters:
+      - description: Request body with parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_emailapi_emailpermutator.GenerateEmailParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Generate email permutations
+  /leads:
+    get:
+      description: Retrieves all leads from the database.
+      operationId: handle-get-all-leads
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Lead'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+      summary: Retrieve all leads
+    post:
+      consumes:
+      - application/json
+      description: Creates a new lead based on the provided parameters.
+      operationId: handle-post-create-lead
+      parameters:
+      - description: Lead details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/db.Lead'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.Lead'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+      security:
+      - OAuth2Application:
+        - write
+      summary: Create a new lead
+  /leads/{id}:
+    delete:
+      description: Deletes a lead with the specified ID from the database.
+      operationId: handle-delete-lead
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+      summary: Delete a lead by ID
+    get:
+      description: Retrieves a lead by its ID from the database.
+      operationId: handle-get-lead
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Lead'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+      summary: Retrieve a lead by ID
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing lead with the provided information.
+      operationId: handle-update-lead
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated lead details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/db.Lead'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Lead'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_leadsapi.ErrorResponse'
+      summary: Update an existing lead
+  /send-email:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Parses the multipart form data into an EmailRequest struct and
+        enqueues an email delivery task.
+      operationId: handle-post-send-emails
+      parameters:
+      - description: From email address
+        in: formData
+        name: From
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: List of recipient email addresses
+        in: formData
+        items:
+          type: string
+        name: To
+        required: true
+        type: array
+      - collectionFormat: csv
+        description: List of CC email addresses
+        in: formData
+        items:
+          type: string
+        name: CC
+        type: array
+      - collectionFormat: csv
+        description: List of BCC email addresses
+        in: formData
+        items:
+          type: string
+        name: BCC
+        type: array
+      - description: Email subject
+        in: formData
+        name: Subject
+        required: true
+        type: string
+      - description: Email body
+        in: formData
+        name: Body
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: List of file attachments
+        in: formData
+        items:
+          type: file
+        name: Attachments
+        type: array
+      - description: SMTP server address
+        in: formData
+        name: Server
+        required: true
+        type: string
+      - description: SMTP server port
+        in: formData
+        name: Port
+        required: true
+        type: string
+      - description: SMTP username
+        in: formData
+        name: Username
+        required: true
+        type: string
+      - description: SMTP password
+        in: formData
+        name: Password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_emailapi_emailsender.JSONResponse'
+      summary: Send emails
+  /validate-email:
+    get:
+      consumes:
+      - application/json
+      description: Validates email addresses based on the provided parameters.
+      operationId: handle-get-validate-email
+      parameters:
+      - description: Email address to validate
+        in: query
+        name: email
+        required: true
+        type: string
+      - default: false
+        description: Perform SMTP check
+        in: query
+        name: smtp
+        type: boolean
+      - default: false
+        description: Perform SOCKS check
+        in: query
+        name: socks
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_emailapi_emailvalidator.validateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_emailapi_emailvalidator.validateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_emailapi_emailvalidator.validateResponse'
+      security:
+      - OAuth2Application:
+        - callback
+      summary: Validate emails
+swagger: "2.0"
