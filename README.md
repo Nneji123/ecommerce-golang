@@ -1,149 +1,201 @@
-# LeadzAura API
+# E-commerce API
 
-This project is a comprehensive API service that includes various functionalities such as email management, lead generation, and task scheduling. It is designed to be scalable, maintainable, and easy to deploy using Docker and Docker Compose.
+A robust and scalable e-commerce API built with Go, featuring user authentication, product management, order processing, and email notifications. Built using Echo framework and following Domain-Driven Design principles.
 
-## **TODO**
+## TODO
+
+### Core Features
+- [x] User Authentication with JWT
+- [x] Product Management
+- [x] Order Processing
+- [x] Email Notifications
+- [ ] Payment Processing Integration
+- [ ] Inventory Management System
+- [ ] Shopping Cart Functionality
+
+### Enhancements
+- [x] Async Email Processing
+- [x] MJML Email Templates
+- [x] File Upload for Product Images
+- [ ] Webhook Support for Order Updates
+- [ ] Cache Layer Implementation
+- [ ] Real-time Inventory Updates
 
 ### Documentation
-- [ ] Create extensive project documentation for new developers.
-
-### Scraping
-- [ ] Implement Google Maps Scraper
-- [ ] Implement Twitter Scraper
-- [x] Test ProxyCurl Linkedin Scraper and write scraped data to database
-
-### Server Settings
-- [X] Add CORS Handling (read cors list from .env or env variables)
-- [x] Add air for hot reload
-- [x] Add Graceful shutdown
-- [X] Add Rate Limiter Middleware for specific routes
-- [x] Add Caching
-- [x] Add API Documentation with swag
-- [x] Change banner
-- [x] Add server health check
-- [x] Create custom structs for errors in swag (instead of using map[string]string
-- [ ] create bash script that uses air when $ENV is set to development
-- [ ] restructure API modules 
-
-### Email Errors
-- [x] Modify Routes handlers to send requests to task queue (send mail, scrape emails etc)
-- [x] Fix Attachment upload for email sending
-- [ ] Create routes for email sequence tasks (for testing purposes
-- [ ] Refactor code and make it cleaner.
-
-
-
+- [x] API Documentation with Swagger
+- [x] Email Template Documentation
+- [ ] Deployment Guide
+- [ ] Contributing Guidelines
 
 ## Table of Contents
 
-- [LeadzAura API](#leadzaura-api)
-  - [**TODO**](#todo)
-    - [Documentation](#documentation)
-    - [Scraping](#scraping)
-    - [Server Settings](#server-settings)
-    - [Email Errors](#email-errors)
-  - [Table of Contents](#table-of-contents)
+- [E-commerce API](#e-commerce-api)
+  - [Features](#features)
+  - [Architecture](#architecture)
   - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-  - [Usage](#usage)
-    - [API Endpoints](#api-endpoints)
   - [API Documentation](#api-documentation)
-  - [Contributing](#contributing)
-  - [License](#license)
-  - [Docker Compose](#docker-compose)
+  - [Docker Setup](#docker-setup)
   - [Environment Variables](#environment-variables)
-  - [Make Commands](#make-commands)
+  - [Development Commands](#development-commands)
 
+## Features
+
+- **Authentication & Authorization**
+  - JWT-based authentication
+  - Role-based access control (Admin/User)
+  - Secure password hashing
+
+- **Product Management**
+  - CRUD operations for products
+  - Category management
+  - Image upload support
+  - Stock tracking
+
+- **Order Processing**
+  - Order creation and management
+  - Order status tracking
+  - Email notifications
+  - Stock validation
+
+- **Email System**
+  - MJML template support
+  - Async processing with queue
+  - Multiple provider support (SMTP, SendGrid, etc.)
+  - Attachment handling
+
+## Architecture
+
+The project follows Domain-Driven Design principles with a clean architecture:
+
+```
+├── cmd/
+│   └── api/              # Application entry point
+├── internal/
+│   ├── domain/          # Business logic and entities
+│   │   ├── user/
+│   │   ├── product/
+│   │   └── order/
+│   ├── middleware/      # HTTP middleware
+│   ├── db/              # Database setup
+│   ├── common/          # Shared utilities
+│   └── config/          # Configuration
+└── templates/           # Email templates
+```
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
 ### Prerequisites
 
-- Docker
-- Docker Compose
-- Go (for building from source)
+- Go 1.23+
+- PostgreSQL
+- Redis (for queue)
+- Docker & Docker Compose (optional)
 
 ### Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/leadzaura/go-scraper.git
-   ```
-2. Navigate to the project directory:
-   ```
-   cd go-scraper
+   ```bash
+   git clone https://github.com/nneji123/ecommerce-golang.git
    ```
 
-## Usage
+2. Install dependencies:
+   ```bash
+   go mod download
+   ```
 
-Once the Docker container is running, you can access the API service at `http://localhost:8080`.
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-### API Endpoints
-
-- **Email Management**: `/api/email`
-- **Lead Generation**: `/api/leads`
-- **Task Scheduling**: `/api/tasks`
+4. Start the server:
+   ```bash
+   go run cmd/api/main.go
+   ```
 
 ## API Documentation
 
-API documentation is generated using Swagger and can be accessed at `http://localhost:8080/swagger/index.html`.
+API documentation is available at `/swagger/index.html` when running the server. Key endpoints include:
 
-## Contributing
+- **Authentication**
+  - POST `/api/auth/register`
+  - POST `/api/auth/login`
 
-Contributions are welcome. Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+- **Products**
+  - GET `/api/products`
+  - POST `/api/admin/products` (Admin only)
+  - PUT `/api/admin/products/{id}` (Admin only)
+
+- **Orders**
+  - POST `/api/orders`
+  - GET `/api/orders`
+  - PUT `/api/orders/{id}/status` (Admin only)
+
+## Docker Setup
+
+Run the entire stack with Docker Compose:
+
+```bash
+# Start services
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# Rebuild services
+docker-compose up -d --build
+```
+
+## Environment Variables
+
+Required environment variables:
+
+```env
+# Server
+PORT=8080
+ENV=development
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=ecommerce
+DB_USER=postgres
+DB_PASSWORD=password
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_DURATION=24h
+
+# Email
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASSWORD=your-password
+```
+
+## Development Commands
+
+```bash
+# Run tests
+go test ./...
+
+# Generate Swagger docs
+swag init -g cmd/api/main.go
+
+# Run with hot reload (using air)
+air
+
+# Build for production
+go build -o ecommerce-api cmd/api/main.go
+```
+
+For local development, we recommend using `air` for hot reloading. Install it with:
+
+```bash
+go install github.com/cosmtrek/air@latest
+```
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Docker Compose
-
-To run the project using Docker Compose, follow these steps:
-
-1. Ensure Docker and Docker Compose are installed on your machine.
-2. Navigate to the project directory.
-3. Run the following command to start the services defined in `docker-compose.yml`:
-   ```
-   docker-compose up -d
-   ```
-4. To stop the services, run:
-   ```
-   docker-compose down
-   ```
-
-## Environment Variables
-
-Environment variables can be set in the `.env` file located in the project root. These variables are used by the application and can be customized as needed.
-
-## Make Commands
-
-This project includes a Makefile with several commands for common tasks. Here are some of the most useful ones:
-
-- **Build the project**:
- ```
- make build
- ```
-- **Run the project**:
- ```
- make run
- ```
-- **Clean the build artifacts**:
- ```
- make clean
- ```
-- **Run tests**:
- ```
- make test
- ```
-- **Generate API documentation**:
- ```
- make generate-docs
- ```
-
-For a full list of available commands, run:
-```
-make help
-```
