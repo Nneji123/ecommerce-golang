@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/nneji123/ecommerce-golang/config"
+	"github.com/nneji123/ecommerce-golang/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
