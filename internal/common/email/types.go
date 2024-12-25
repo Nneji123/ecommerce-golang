@@ -1,0 +1,10 @@
+package email
+
+type Attachment struct {
+	Filename string
+	Content  []byte
+}
+
+type EmailService interface {
+	SendEmail(subject, templatePath string, toEmail string, context map[string]interface{}, attachments []Attachment) error
+}

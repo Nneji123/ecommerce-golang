@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nneji123/ecommerce-golang/internal/config"
 )
 
 // rateLimiterMiddleware adds rate limiting to specific routes
