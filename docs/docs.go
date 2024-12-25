@@ -11,9 +11,9 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
-            "name": "LeadzAura Support",
-            "url": "http://leadzaura.com",
-            "email": "contact@leadzaura.com"
+            "name": "Ecommerce Support",
+            "url": "http://Ecommerce.com",
+            "email": "contact@Ecommerce.com"
         },
         "license": {
             "name": "MIT",
@@ -534,7 +534,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "LeadzAura API",
+	Title:            "Ecommerce API",
 	Description:      "Leadz Aura API is a service for leads generation and outreach..",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

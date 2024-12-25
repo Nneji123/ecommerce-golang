@@ -2,12 +2,12 @@
     "swagger": "2.0",
     "info": {
         "description": "Leadz Aura API is a service for leads generation and outreach..",
-        "title": "LeadzAura API",
+        "title": "Ecommerce API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
-            "name": "LeadzAura Support",
-            "url": "http://leadzaura.com",
-            "email": "contact@leadzaura.com"
+            "name": "Ecommerce Support",
+            "url": "http://Ecommerce.com",
+            "email": "contact@Ecommerce.com"
         },
         "license": {
             "name": "MIT",
