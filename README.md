@@ -95,6 +95,8 @@ The project follows Domain-Driven Design principles with a clean architecture:
 ## API Documentation
 
 API documentation is available at `/swagger/index.html` when running the server. Key endpoints include:
+![Screenshot (496)](https://github.com/user-attachments/assets/d800580e-3459-4853-909f-d303a13c2a0c)
+![Screenshot (497)](https://github.com/user-attachments/assets/ec535faf-ae8a-4519-968a-9a2a5c2890b4)
 
 - **Authentication**
   - POST `/auth/register`
