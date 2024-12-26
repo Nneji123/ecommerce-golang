@@ -32,7 +32,7 @@ func (m *EmailMessage) AddAttachments(atts []Attachment) { m.attachments = atts 
 
 func (m *EmailMessage) Send(config *config.Config) error {
 	tlsConfig := &tls.Config{
-		ServerName: config.SMTPHost,
+		ServerName:         config.SMTPHost,
 		InsecureSkipVerify: true,
 	}
 
