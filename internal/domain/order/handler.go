@@ -36,7 +36,6 @@ func (h *Handler) Create(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Get user ID from claims
 	claims := c.Get("userClaims").(*models.Claims)
 	order.UserID = claims.UserID
 
@@ -135,7 +134,6 @@ func (h *Handler) UpdateStatus(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Validate status
 	if !IsValidOrderStatus(statusUpdate.Status) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid order status")
 	}

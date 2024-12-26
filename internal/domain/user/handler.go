@@ -91,7 +91,6 @@ func (h *Handler) Register(c echo.Context) error {
 		return err
 	}
 
-	// Send verification email
 	if err := h.emailService.SendVerificationEmail(user.Email, token); err != nil {
 		h.logger.Error("Failed to send verification email", zap.Error(err))
 	}
@@ -178,8 +177,8 @@ func (h *Handler) ConfirmRegistration(c echo.Context) error {
 	}
 
 	user.IsEmailVerified = true
-	user.EmailVerificationToken = nil  // Set to nil instead of empty string
-	user.EmailVerificationExpiry = nil // Clear the expiry time as well
+	user.EmailVerificationToken = nil
+	user.EmailVerificationExpiry = nil
 
 	if err := h.repo.Update(user); err != nil {
 		return err
@@ -216,7 +215,6 @@ func (h *Handler) RequestPasswordReset(c echo.Context) error {
 		return err
 	}
 
-	// Always return success to prevent email enumeration
 	if user == nil {
 		return c.JSON(http.StatusOK, map[string]string{
 			"message": "if your email is registered, you will receive a password reset link",
@@ -280,8 +278,8 @@ func (h *Handler) ConfirmPasswordReset(c echo.Context) error {
 	}
 
 	user.Password = string(hashedPassword)
-	user.PasswordResetToken = nil  // Set to nil instead of empty string
-	user.PasswordResetExpiry = nil // Set to nil instead of zero time
+	user.PasswordResetToken = nil
+	user.PasswordResetExpiry = nil
 
 	if err := h.repo.Update(user); err != nil {
 		return err

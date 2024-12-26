@@ -28,7 +28,6 @@ func (s *EmailNotificationService) SendEmail(subject, templatePath string, toEma
 	return s.service.SendEmail(subject, templatePath, toEmail, context, attachments)
 }
 
-// SMTP Service implementation
 type SMTPService struct {
 	config *config.Config
 }
@@ -57,7 +56,6 @@ func (s *SMTPService) SendEmail(subject, templatePath string, toEmail string, co
 	return nil
 }
 
-// SendGrid Service implementation
 type SendGridService struct {
 	config *config.Config
 }
@@ -67,6 +65,5 @@ func NewSendGridService(config *config.Config) *SendGridService {
 }
 
 func (s *SendGridService) SendEmail(subject, templatePath string, toEmail string, context map[string]interface{}, attachments []Attachment) error {
-	// Implementation similar to SMTPService but using SendGrid API
 	return nil
 }

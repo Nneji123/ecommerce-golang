@@ -2,7 +2,6 @@ package order
 
 import "errors"
 
-// IsValidOrderStatus checks if the provided status is valid
 func IsValidOrderStatus(status OrderStatus) bool {
 	validStatuses := map[OrderStatus]bool{
 		StatusPending:   true,
@@ -14,7 +13,6 @@ func IsValidOrderStatus(status OrderStatus) bool {
 	return validStatuses[status]
 }
 
-// CalculateOrderTotal calculates the total amount for an order
 func CalculateOrderTotal(items []OrderItem) float64 {
 	var total float64
 	for _, item := range items {
@@ -23,7 +21,6 @@ func CalculateOrderTotal(items []OrderItem) float64 {
 	return total
 }
 
-// ValidateOrder validates the order and its items
 func ValidateOrder(order *Order) error {
 	if len(order.Items) == 0 {
 		return errors.New("order must contain at least one item")

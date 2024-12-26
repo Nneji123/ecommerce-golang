@@ -140,7 +140,6 @@ func (h *Handler) List(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Validate and set default values
 	if query.Page < 1 {
 		query.Page = 1
 	}
@@ -148,7 +147,6 @@ func (h *Handler) List(c echo.Context) error {
 		query.Limit = 10
 	}
 
-	// Validate sort parameters
 	if query.SortBy != "" {
 		validColumns := map[string]bool{
 			"name": true, "price": true, "created_at": true,

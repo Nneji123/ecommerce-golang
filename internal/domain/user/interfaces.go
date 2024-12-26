@@ -11,7 +11,7 @@ type EmailService interface {
 }
 
 type emailService struct {
-	service *email.EmailNotificationService // Changed to pointer type
+	service *email.EmailNotificationService
 	config  *config.Config
 }
 

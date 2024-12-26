@@ -38,8 +38,6 @@ func (r *Repository) Delete(id uint) error {
 	return r.db.Delete(&Product{}, id).Error
 }
 
-// internal/domain/product/types.go
-// Add this struct for list query parameters
 type ListProductsQuery struct {
 	Page     int     `query:"page"`
 	Limit    int     `query:"limit"`
@@ -80,7 +78,6 @@ func (r *Repository) List(query *ListProductsQuery) ([]Product, int64, error) {
 			direction = "DESC"
 		}
 
-		// Validate sort column to prevent SQL injection
 		validColumns := map[string]bool{
 			"name": true, "price": true, "created_at": true,
 		}
@@ -88,11 +85,9 @@ func (r *Repository) List(query *ListProductsQuery) ([]Product, int64, error) {
 			db = db.Order(query.SortBy + " " + direction)
 		}
 	} else {
-		// Default sorting
 		db = db.Order("created_at DESC")
 	}
 
-	// Apply pagination
 	page := query.Page
 	if page < 1 {
 		page = 1

@@ -23,7 +23,6 @@ func RenderTemplate(templatePath string, data map[string]interface{}) (string, s
 		return "", "", fmt.Errorf("failed to execute template: %w", err)
 	}
 
-	// Create a context for MJML conversion
 	ctx := context.Background()
 
 	html, err := mjml.ToHTML(ctx, mjmlBuf.String(), mjml.WithMinify(true))

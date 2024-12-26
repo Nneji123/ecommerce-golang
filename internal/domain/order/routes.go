@@ -9,7 +9,6 @@ import (
 )
 
 func RegisterRoutes(e *echo.Echo, h *Handler) {
-	// All order routes require authentication
 	orders := e.Group("/orders")
 
 	cfg, err := config.LoadConfig()

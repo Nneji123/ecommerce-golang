@@ -12,7 +12,6 @@ var (
 	DB *gorm.DB
 )
 
-// Connect to database
 func Connect() (*gorm.DB, error) {
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -25,11 +24,9 @@ func Connect() (*gorm.DB, error) {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			log.Printf("Error connecting to database (attempt %d): %s", attempt, err)
-			// Wait for a moment before retrying
 			time.Sleep(5 * time.Second)
 			continue
 		}
-		// Successfully connected
 		break
 	}
 	if err != nil {
@@ -41,7 +38,6 @@ func Connect() (*gorm.DB, error) {
 	return db, nil
 }
 
-// Close database connection
 func Close() error {
 	db, err := DB.DB()
 	if err != nil {
