@@ -27,17 +27,17 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: database
-      POSTGRES_USER: myuser  # Make sure this matches the username in the connection string
-      POSTGRES_PASSWORD: mypassword  # Make sure this matches the password in the connection string
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
-  mailpit: # For email sending tests
+  mailpit:
     image: axllent/mailpit
     container_name: mailpit
     restart: always
     volumes:
-      - ./data:/data
+      - ./github:/data
     ports:
       - 8025:8025
       - 1025:1025
