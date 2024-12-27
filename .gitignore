@@ -20,7 +20,6 @@ file.txt
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-*.pem
 dataT.go
 caddy_data/
 caddy_config/
